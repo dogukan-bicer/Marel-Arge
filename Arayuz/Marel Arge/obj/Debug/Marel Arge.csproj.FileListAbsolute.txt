@@ -1,0 +1,16 @@
+C:\Users\doguk\source\repos\Marel Arge\bin\Debug\Marel Arge.exe.config
+C:\Users\doguk\source\repos\Marel Arge\bin\Debug\Marel Arge.exe
+C:\Users\doguk\source\repos\Marel Arge\bin\Debug\Marel Arge.pdb
+C:\Users\doguk\source\repos\Marel Arge\obj\Debug\Marel Arge.csproj.AssemblyReference.cache
+C:\Users\doguk\source\repos\Marel Arge\obj\Debug\Marel Arge.csproj.SuggestedBindingRedirects.cache
+C:\Users\doguk\source\repos\Marel Arge\obj\Debug\MainWindow.g.cs
+C:\Users\doguk\source\repos\Marel Arge\obj\Debug\App.g.cs
+C:\Users\doguk\source\repos\Marel Arge\obj\Debug\Marel Arge_MarkupCompile.cache
+C:\Users\doguk\source\repos\Marel Arge\obj\Debug\Marel Arge_MarkupCompile.lref
+C:\Users\doguk\source\repos\Marel Arge\obj\Debug\MainWindow.baml
+C:\Users\doguk\source\repos\Marel Arge\obj\Debug\Marel Arge.g.resources
+C:\Users\doguk\source\repos\Marel Arge\obj\Debug\Marel_Arge.Properties.Resources.resources
+C:\Users\doguk\source\repos\Marel Arge\obj\Debug\Marel Arge.csproj.GenerateResource.cache
+C:\Users\doguk\source\repos\Marel Arge\obj\Debug\Marel Arge.csproj.CoreCompileInputs.cache
+C:\Users\doguk\source\repos\Marel Arge\obj\Debug\Marel Arge.exe
+C:\Users\doguk\source\repos\Marel Arge\obj\Debug\Marel Arge.pdb
