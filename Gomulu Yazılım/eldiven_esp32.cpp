@@ -13,7 +13,7 @@ const int flex_4=35;
 const int flex_5=32;
 const int bat_v=33;
 
-const char* ssid = "Xiaomi_14";
+const char* ssid = "marel_arge";
 const char* password = "test1234";
 const int localPort = 1235; // UDP sunucusu portu
 
