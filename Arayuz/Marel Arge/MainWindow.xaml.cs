@@ -47,8 +47,8 @@ namespace Marel_Arge
 
         int robotik_el_port = 1234;
         int eldiven_port = 1235;
-        string robotik_ip_adres = "192.168.144.34";
-        string eldiven_ip_adres = "192.168.144.35";
+        string robotik_ip_adres = "192.168.11.34";
+        string eldiven_ip_adres = "192.168.11.35";
 
         bool robotik_status, eldiven_status = false;
 
