@@ -35,7 +35,7 @@ struct bno055_euler myEulerData; //Structure to hold the Euler data
 int x_eksen,y_eksen,z_eksen=0;
 
 //statik ip
-IPAddress local_IP(192, 168, 144, 35);
+IPAddress local_IP(192, 168, 11, 35);
 IPAddress gateway(192, 168, 1, 1);
 IPAddress subnet(255, 255, 0, 0);
 IPAddress primaryDNS(8, 8, 8, 8);   //optional
