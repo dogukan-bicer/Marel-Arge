@@ -48,14 +48,14 @@ parmak_4yz_analog,parmak_5sr_analog=0;
 
 char udp_paketi[20];  // Gelen UDP paketi için buffer
 
-const char* ssid = "Xiaomi_14";
+const char* ssid = "marel_arge";
 const char* password = "test1234";
 int localPort = 1234; // UDP sunucusu portu
 
 WiFiUDP udp;
 
 //statik ip
-IPAddress local_IP(192, 168, 144, 34);
+IPAddress local_IP(192, 168, 11, 34);
 IPAddress gateway(192, 168, 1, 1);
 IPAddress subnet(255, 255, 0, 0);
 IPAddress primaryDNS(8, 8, 8, 8);   //optional
@@ -160,7 +160,7 @@ void loop() {
     //Serial.println(Robotik_data);
 
 
-    IPAddress local_IP(192, 168, 144, 34);
+    IPAddress local_IP(192, 168, 11, 34);
         // İstemci adresini alın
     IPAddress remoteIp = udp.remoteIP();
 
