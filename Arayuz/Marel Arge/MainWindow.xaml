@@ -39,12 +39,12 @@
         <Label x:Name="serce_parmak_label" Grid.Column="2" Content="0" HorizontalAlignment="Left" Margin="540,463,0,0" VerticalAlignment="Top"/>
         <Label x:Name="yuzuk_parmak_label" Grid.Column="2" Content="0" HorizontalAlignment="Left" Margin="540,416,0,0" VerticalAlignment="Top"/>
         <Label  Grid.Column="1" Content="Flex Sensör 1" HorizontalAlignment="Center" Margin="0,526,0,0" VerticalAlignment="Top"/>
-        <Label  Grid.Column="1" Content="Flex Sensör 2" HorizontalAlignment="Left" Margin="129,526,0,0" VerticalAlignment="Top" Grid.ColumnSpan="2"/>
+        <Label  Grid.Column="2" Content="Flex Sensör 2" HorizontalAlignment="Left" Margin="4,526,0,0" VerticalAlignment="Top" Width="82"/>
         <Label  Grid.Column="2" Content="Flex Sensör 3" HorizontalAlignment="Left" Margin="101,526,0,0" VerticalAlignment="Top"/>
         <Label  Grid.Column="2" Content="Flex Sensör 4" HorizontalAlignment="Left" Margin="198,526,0,0" VerticalAlignment="Top"/>
         <Label  Grid.Column="2" Content="Flex Sensör 5" HorizontalAlignment="Left" Margin="306,526,0,0" VerticalAlignment="Top"/>
         <Label  x:Name="flex_sensor_1_label" Grid.Column="1" Content="0" HorizontalAlignment="Center" Margin="0,571,0,0" VerticalAlignment="Top" Width="79"/>
-        <Label  x:Name="flex_sensor_2_label" Grid.Column="1" Content="0" HorizontalAlignment="Left" Margin="129,571,0,0" VerticalAlignment="Top" Width="79" Grid.ColumnSpan="2"/>
+        <Label  x:Name="flex_sensor_2_label" Grid.Column="2" Content="0" HorizontalAlignment="Left" Margin="4,571,0,0" VerticalAlignment="Top" Width="66"/>
         <Label  x:Name="flex_sensor_3_label" Grid.Column="2" Content="0" HorizontalAlignment="Left" Margin="109,571,0,0" VerticalAlignment="Top" Width="79"/>
         <Label  x:Name="flex_sensor_4_label" Grid.Column="2" Content="0" HorizontalAlignment="Left" Margin="199,571,0,0" VerticalAlignment="Top" Width="79"/>
         <Label  x:Name="flex_sensor_5_label" Grid.Column="2" Content="0" HorizontalAlignment="Left" Margin="306,571,0,0" VerticalAlignment="Top" Width="79"/>
@@ -57,8 +57,10 @@
         <Label x:Name="z_eksen_label" Grid.Column="2" Content="0" HorizontalAlignment="Left" Margin="549,571,0,0" VerticalAlignment="Top" Width="49"/>
         <Label x:Name="pil_seviyesi_label" Grid.Column="2" Content="0" HorizontalAlignment="Left" Margin="617,571,0,0" VerticalAlignment="Top" Width="49"/>
         <Label  Grid.Column="2" Content="Emg Verisi" Margin="642,279,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Width="65"/>
-        <Button Content="konfigurasyon"  HorizontalAlignment="Left" Height="34" Margin="404,223,0,0" VerticalAlignment="Top" Width="97" Click="Pwm_Ayarla" x:Name="pwm_Ayari_Copy" Grid.Column="2"/>
+        <Button Content="Tekrarla"  HorizontalAlignment="Left" Height="34" Margin="404,223,0,0" VerticalAlignment="Top" Width="97" Click="el_acma_kapama" x:Name="pwm_Ayari_Copy" Grid.Column="2"/>
         <Label  x:Name="emg_data_label" Grid.Column="2" Content="0" HorizontalAlignment="Left" Margin="666,312,0,0" VerticalAlignment="Top" Width="79"/>
+        <Button Content="eldiven Ayarla"  HorizontalAlignment="Left" Height="34" Margin="619,463,0,0" VerticalAlignment="Top" Width="111" Click="eldiven_ayarla_1" x:Name="eldiven_ayarla" Grid.Column="2"/>
+        <TextBox x:Name="tekrar_sayisi_textbox" Grid.Column="2" HorizontalAlignment="Left" Margin="540,233,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="70"/>
 
     </Grid>
 </Window>

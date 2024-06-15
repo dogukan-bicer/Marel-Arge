@@ -93,71 +93,45 @@ namespace Marel_Arge
         private void Sunucuya_baglan(object sender, RoutedEventArgs e)
         {
             this.Cursor = Cursors.Wait;
-
             sunucu_baglan_click = true;
             timer.Start(); // Timer'ı başlat
             try
             {
                 if (robotik.IsChecked == true)
                 {
-
                     robotik_status = true;
-
-
                     // Bağlanılacak sunucunun IPEndPoint örneği oluşturun
                     endPoint_robotik = new IPEndPoint(IPAddress.Parse(robotik_ip_adres), robotik_el_port);
-
                     // UDP soketini oluşturun
                     client_robotik = new UdpClient();
-
                     // Sunucuya bağlanın
                     client_robotik.Connect(endPoint_robotik);
-
                     byte[] data = HexStringToByteArray(hex_deger.ToString("X2"));
-
                     // Veriyi sunucuya gönderin
                     client_robotik.Send(data, data.Length);
-
                     robotik_connect_status = true;
 
                     // sonraki veri alımını başlat
                     client_robotik.BeginReceive(new AsyncCallback(ReceiveCallback_Robotik), null);
-
-
-
                 }
                 else if (robotik.IsChecked == false) { robotik_connect_status = false; MessageBox.Show("robotik baglı degil"); }
                 if (eldiven.IsChecked == true)
                 {
-
                     eldiven_status = true;
-
                     // Bağlanılacak sunucunun IPEndPoint örneği oluşturun
                     endPoint_eldiven = new IPEndPoint(IPAddress.Parse(eldiven_ip_adres), eldiven_port);
-
                     // UDP soketini oluşturun
                     client_eldiven = new UdpClient();
-
                     // Sunucuya bağlanın
                     client_eldiven.Connect(endPoint_eldiven);
-
                     byte[] data = HexStringToByteArray(hex_deger.ToString("X2"));
-
                     // Veriyi sunucuya gönderin
                     client_eldiven.Send(data, data.Length);
-
                     eldiven_connect_status = true;
-
-
                     // sonraki veri alımını başlat
                     client_eldiven.BeginReceive(new AsyncCallback(ReceiveCallback_Eldiven), null);
-
                 }
-
-
                 else if (eldiven.IsChecked == false) { eldiven_connect_status = false; MessageBox.Show("eldiven baglı degil"); }
-
-
             }
             catch (Exception ex)
             {
@@ -171,6 +145,17 @@ namespace Marel_Arge
             }
         }
 
+        private void eldiven_ayarla_1(object sender, RoutedEventArgs e)
+        {
+            if (flex_sensor_1 > 2000) { flex_sensor_1 = 0; } else { flex_sensor_1 = 255; }
+            if (flex_sensor_2 > 2000) { flex_sensor_2 = 0; } else { flex_sensor_2 = 255; }
+            if (flex_sensor_3 > 2000) { flex_sensor_3 = 0; } else { flex_sensor_3 = 255; }
+            if (flex_sensor_4 > 2000) { flex_sensor_4 = 0; } else { flex_sensor_4 = 255; }
+            if (flex_sensor_5 > 2400) { flex_sensor_5 = 0; } else { flex_sensor_5 = 255; }
+
+            EldivendenGonder(flex_sensor_1 , flex_sensor_2, flex_sensor_3, flex_sensor_4, flex_sensor_5 );
+        }
+
         private void Timer_Tick(object sender, EventArgs e)
         {
             if ((connect_status == false)&&(sunucu_baglan_click==true))
@@ -179,6 +164,40 @@ namespace Marel_Arge
                 MessageBox.Show("Cihaz ile Bilgisayar aynı ağa bağlı değil.");
             }
             this.Cursor = null;
+        }
+
+        private void el_acma_kapama(object sender, RoutedEventArgs e)
+        {
+            for (int i = 0; i < int.Parse(tekrar_sayisi_textbox.Text) ; i++)
+            {
+                parmak_1b = (byte)0;
+                parmak_2is = (byte)0;
+                parmak_3or = (byte)0;
+                parmak_4yz = (byte)0;
+                parmak_5sr = (byte)0;
+                string dataStr = parmak_1b.ToString() + "_" + parmak_2is.ToString() +
+                "_" + parmak_3or.ToString() + "_" + parmak_4yz.ToString() + "_" +
+                parmak_5sr.ToString();
+                byte[] data = System.Text.Encoding.ASCII.GetBytes(dataStr);
+                // Veriyi sunucuya gönderin
+                client_robotik.Send(data, data.Length);
+
+                Thread.Sleep(5000);
+
+                parmak_1b = (byte)0xff;
+                parmak_2is = (byte)0xff;
+                parmak_3or = (byte)0xff;
+                parmak_4yz = (byte)0xff;
+                parmak_5sr = (byte)0xff;
+                dataStr = parmak_1b.ToString() + "_" + parmak_2is.ToString() +
+                "_" + parmak_3or.ToString() + "_" + parmak_4yz.ToString() + "_" +
+                parmak_5sr.ToString();
+                data = System.Text.Encoding.ASCII.GetBytes(dataStr);
+                // Veriyi sunucuya gönderin
+                client_robotik.Send(data, data.Length);
+
+                Thread.Sleep(5000);
+            }
         }
 
         byte parmak_1b = 0;
@@ -214,6 +233,34 @@ namespace Marel_Arge
                 MessageBox.Show("Bağlantı Hatası: {0}", ex.ToString());
             }
          }
+
+        private void EldivendenGonder(int f1, int f2, int f3, int f4, int f5)
+        {
+            try
+            {
+                parmak_1b = (byte)f1;
+                parmak_2is = (byte)f2;
+                parmak_3or = (byte)f3;
+                parmak_4yz = (byte)f4;
+                parmak_5sr = (byte)f5;
+                string dataStr = parmak_1b.ToString() + "_" + parmak_2is.ToString() +
+                "_" + parmak_3or.ToString() + "_" + parmak_4yz.ToString() + "_" +
+                parmak_5sr.ToString();
+                byte[] data = System.Text.Encoding.ASCII.GetBytes(dataStr);
+                // Veriyi sunucuya gönderin
+                client_robotik.Send(data, data.Length);
+            }
+            catch (Exception ex)
+            {
+                robotik_connect_status = false;
+                eldiven_connect_status = false;
+                sunucu_durum.Content = "Bağlı Değil";
+                sunucu_durum.Foreground = Brushes.Red;
+                pwm_Ayari.IsEnabled = false;
+                Tum_pwm.IsEnabled = false;
+                MessageBox.Show("Bağlantı Hatası: {0}", ex.ToString());
+            }
+        }
 
         void veri_alma_hatası()
         {
@@ -281,17 +328,17 @@ namespace Marel_Arge
                                  batarya = Convert.ToInt32(sensorValues[8]);
 
                                 // Flex sensör değerlerini ayır
-                                 flex_sensor_1 = Convert.ToInt32(sensorValues[0]);
-                                 flex_sensor_2 = Convert.ToInt32(sensorValues[1]);
+                                 flex_sensor_2 = Convert.ToInt32(sensorValues[0]);
+                                 flex_sensor_5 = Convert.ToInt32(sensorValues[1]);
                                  flex_sensor_3 = Convert.ToInt32(sensorValues[2]);
                                  flex_sensor_4 = Convert.ToInt32(sensorValues[3]);
-                                 flex_sensor_5 = Convert.ToInt32(sensorValues[4]);
+                                 flex_sensor_1 = Convert.ToInt32(sensorValues[4]);
 
-                                flex_sensor_1_label.Content = flex_sensor_1;
-                                flex_sensor_2_label.Content = flex_sensor_2;
+                                flex_sensor_1_label.Content = flex_sensor_2;
+                                flex_sensor_2_label.Content = flex_sensor_5;
                                 flex_sensor_3_label.Content = flex_sensor_3;
                                 flex_sensor_4_label.Content = flex_sensor_4;
-                                flex_sensor_5_label.Content = flex_sensor_5;
+                                flex_sensor_5_label.Content = flex_sensor_1;
 
                                 x_eksen_label.Content = x_eksen;
                                 y_eksen_label.Content= y_eksen;
@@ -329,8 +376,6 @@ namespace Marel_Arge
 
         private void ReceiveCallback_Robotik(IAsyncResult ar)
         {
-
-
             connect_status = true;
 
             if (robotik_connect_status == true)
@@ -432,6 +477,7 @@ namespace Marel_Arge
         {
             try
             {
+
                 parmak_1b = (byte)pwm_slider.Value;
                 parmak_2is = (byte)pwm_slider.Value;
                 parmak_3or = (byte)pwm_slider.Value;
