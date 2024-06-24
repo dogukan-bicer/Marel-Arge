@@ -1,68 +1,111 @@
 #include <WiFi.h>
 #include <WiFiUdp.h>
-#include "BNO055_support.h"		//Contains the bridge code between the API and Arduino
-#include <Wire.h>
 #include <EEPROM.h>
+#include <Wire.h>
+#include <Adafruit_ADS1X15.h>
+
+Adafruit_ADS1115 ads;  /* Use this for the 16-bit version */
+
+uint32_t new_time, old_time, old_time2;
+boolean toggle = false;
+int analog;
+String Robotik_data;
+// setting PWM properties
+const int freq = 1000;
+const int ledChannel = 0;
+const int resolution = 8;
+const int ledPin = 17;
+
+const int parmak_1b = 33;
+const int parmak_2is = 25;
+const int parmak_3or = 26;
+const int parmak_4yz = 27;
+const int parmak_5sr = 14;
+
+const int poz_fb_1 = 36;
+const int poz_fb_2 = 39;
+const int poz_fb_3 = 34;
+const int poz_fb_4 = 35;
+const int poz_fb_5 = 32;
+
+const int pwm_kanal_1 = 1;
+const int pwm_kanal_2 = 2;
+const int pwm_kanal_3 = 3;
+const int pwm_kanal_4 = 4;
+const int pwm_kanal_5 = 5;
+
+const int emg_adc_pin = 4;
+
+int emg_analog;
+int emg_analog2;
+
+int parmak_1b_pwm, parmak_2is_pwm, parmak_3or_pwm,
+    parmak_4yz_pwm, parmak_5sr_pwm = 0;
+
+int parmak_1b_analog, parmak_2is_analog, parmak_3or_analog,
+    parmak_4yz_analog, parmak_5sr_analog = 0;
+
+char udp_paketi[20];  // Gelen UDP paketi için buffer
+
+const char *ssid = "marel_arge";
+const char *password = "test1234";
+int localPort = 1234;  // UDP sunucusu portu
+
+WiFiUDP udp;
+
+// statik ip
+IPAddress local_IP(192, 168, 11, 34);
+IPAddress gateway(192, 168, 1, 1);
+IPAddress subnet(255, 255, 0, 0);
+IPAddress primaryDNS(8, 8, 8, 8);    // optional
+IPAddress secondaryDNS(8, 8, 4, 4);  // optional
 
 #define EEPROM_SIZE 96
 bool wifiConnected = false;
 
-const int led_g=18;
-const int led_b=5;
-const int led_r=17;
-const int flex_1=36;
-const int flex_2=39;
-const int flex_3=34;
-const int flex_4=35;
-const int flex_5=32;
-const int bat_v=33;
-
-const char* ssid = "marel_arge";
-const char* password = "test1234";
-const int localPort = 1235; // UDP sunucusu portu
-
-WiFiUDP udp;
-
-uint32_t new_time, old_time,old_time2,old_time3;
-int flex_analog_1,flex_analog_2,flex_analog_3,flex_analog_4,flex_analog_5;
-int bat_analog;
-boolean toggle,toggle2,toggle3 = false;
-
-int analog;
-
-String Eldiven_data;
-
-//This structure contains the details of the BNO055 device that is connected. (Updated after initialization)
-struct bno055_t myBNO;
-struct bno055_euler myEulerData; //Structure to hold the Euler data
-
-int x_eksen,y_eksen,z_eksen=0;
-
-//statik ip
-IPAddress local_IP(192, 168, 11, 35);
-IPAddress gateway(192, 168, 1, 1);
-IPAddress subnet(255, 255, 0, 0);
-IPAddress primaryDNS(8, 8, 8, 8);   //optional
-IPAddress secondaryDNS(8, 8, 4, 4); //optional
+TaskHandle_t Task1;
+TaskHandle_t Task2;
 
 void setup() {
- //Initialize I2C communication
-  Wire.begin();
-  //Initialization of the BNO055
-  BNO_Init(&myBNO); //Assigning the structure to hold information about the device
-  //Configuration to NDoF mode
-  bno055_set_operation_mode(OPERATION_MODE_NDOF);
+  if (!ads.begin()) {
+    Serial.println("Failed to initialize ADS.");
+    while (1)
+      ;
+  }
+  ads.setGain(GAIN_ONE);  // 1x gain   +/- 4.096V  1 bit = 2mV      0.125mV
+  ads.setDataRate(RATE_ADS1115_860SPS);
 
- // delay(1);
-  // put your setup code here, to run once:
-  pinMode(led_g, OUTPUT);
-  pinMode(led_b, OUTPUT);
-  pinMode(led_r, OUTPUT);
-  pinMode(flex_1, INPUT);
-  pinMode(bat_v, INPUT);
   Serial.begin(115200);
   Serial.println(".:Marel Arge:.");
+  pinMode(12, OUTPUT);
+  pinMode(17, OUTPUT);
 
+  pinMode(emg_adc_pin, INPUT);
+
+  pinMode(2, INPUT);
+  pinMode(4, INPUT);
+  pinMode(13, INPUT);
+  pinMode(15, INPUT);
+
+  pinMode(poz_fb_1, INPUT);
+  pinMode(poz_fb_2, INPUT);
+  pinMode(poz_fb_3, INPUT);
+  pinMode(poz_fb_4, INPUT);
+  pinMode(poz_fb_5, INPUT);
+  // LED PWM işlevlerini yapılandırır
+  ledcSetup(ledChannel, freq, resolution);
+  ledcSetup(pwm_kanal_1, freq, resolution);
+  ledcSetup(pwm_kanal_2, freq, resolution);
+  ledcSetup(pwm_kanal_3, freq, resolution);
+  ledcSetup(pwm_kanal_4, freq, resolution);
+  ledcSetup(pwm_kanal_5, freq, resolution);
+  // kontrol edilecek kanalı GPIO'ya ekler
+  ledcAttachPin(ledPin, ledChannel);
+  ledcAttachPin(parmak_1b, pwm_kanal_1);
+  ledcAttachPin(parmak_2is, pwm_kanal_2);
+  ledcAttachPin(parmak_3or, pwm_kanal_3);
+  ledcAttachPin(parmak_4yz, pwm_kanal_4);
+  ledcAttachPin(parmak_5sr, pwm_kanal_5);
   // WiFi ağa bağlan
   EEPROM.begin(EEPROM_SIZE);
   Serial.println("EEPROM okunmaya hazır");
@@ -79,80 +122,124 @@ void setup() {
     // WiFi bağlantısını kurma işlemini gerçekleştir
     connectToWifi(ssid, password);
   }
+
+  xTaskCreatePinnedToCore(
+      Task1code, /* Görev fonksiyonu. */
+      "Task1",   /* Görev adı. */
+      10000,     /* Yığın boyutu. */
+      NULL,      /* Parametre. */
+      1,         /* Görev önceliği. */
+      &Task1,    /* Görev tanıtıcısı. */
+      0);        /* Çekirdek. */
+
+  xTaskCreatePinnedToCore(
+      Task2code, /* Görev fonksiyonu. */
+      "Task2",   /* Görev adı. */
+      10000,     /* Yığın boyutu. */
+      NULL,      /* Parametre. */
+      1,         /* Görev önceliği. */
+      &Task2,    /* Görev tanıtıcısı. */
+      1);        /* Çekirdek. */
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-  new_time = millis();
-  if (new_time - old_time > 500) {
-  flex_analog_1 = analogRead(flex_1);
-  flex_analog_2 = analogRead(flex_2);
-  flex_analog_3 = analogRead(flex_3);
-  flex_analog_4 = analogRead(flex_4);
-  flex_analog_5 = analogRead(flex_5);
-  bat_analog = analogRead(bat_v);
-  Eldiven_data = "El="+String(flex_analog_1)+'_'+
-                String(flex_analog_2)+'_'+
-                String(flex_analog_3)+'_'+
-                String(flex_analog_4)+'_'+
-                String(flex_analog_5)+'_'+
-                String(x_eksen)+'_'+
-                String(y_eksen)+'_'+
-                String(z_eksen)+'_'+
-                String(bat_analog);
-    toggle = !toggle;
-    Serial.println(Eldiven_data);
-    digitalWrite(led_g, toggle);
-    old_time = new_time;
-  }
-  if (new_time - old_time2 > 250) {
-    bno055_read_euler_hrp(&myEulerData);			//Update Euler data into the structure
+  // Boş bırakıldı. Tüm işler taskler tarafından yapılacak.
+}
 
-    x_eksen=int(myEulerData.h) / 16;
-    Serial.print("Heading(Yaw): ");				//To read out the Heading (Yaw)
-    Serial.println(x_eksen);		//Convert to degrees
+void Task1code(void *parameter) {
+  for (;;) {
+    emg_analog = ads.readADC_Differential_0_1();
+    emg_analog2 = ads.readADC_Differential_2_3();
 
-    y_eksen=int(myEulerData.r) / 16;
-    Serial.print("Roll: ");					//To read out the Roll
-    Serial.println(y_eksen);		//Convert to degrees
 
-    z_eksen=int(myEulerData.p) / 16;
-    Serial.print("Pitch: ");				//To read out the Pitch
-    Serial.println(z_eksen);		//Convert to degrees
-    
-    toggle2 = !toggle2;
-    digitalWrite(led_b, toggle2);
-    old_time2 = new_time;
-  } 
-  if (new_time - old_time3 > 750) {
-    toggle3 = !toggle3;
-    digitalWrite(led_r, toggle3);
-    old_time3 = new_time;
-
-    IPAddress local_IP(192, 168, 11, 35);
-        // İstemci adresini alın
+    //udp sunucusuna gönder
     IPAddress remoteIp = udp.remoteIP();
-
-    int remotePort = udp.remotePort();
-    // İstemciye analog değeri gönderin
-    udp.beginPacket(remoteIp, remotePort);
-    udp.println(Eldiven_data);
+    udp.beginPacket(remoteIp, localPort);
+    String test_Str = String(emg_analog) + ">" + String(emg_analog2);
+    udp.println(test_Str);
     udp.endPacket();
-  }
-  delay(1);
-  // İstemci mesajını bekleyin
-  int packetSize = udp.parsePacket();
-  if (packetSize) {
-    Serial.println("Paket alındı");
-    // İstemciden PWM değerini alın
-    while (udp.available()) {
-      int pwmValue = udp.read();
-      Serial.print("sunucudan veri alındı: ");
-      Serial.println(pwmValue);
-    }
   }
 }
 
+void Task2code(void *parameter) {
+  for (;;) {
+        new_time = millis();
+    if (new_time - old_time > 700) {
+      toggle = !toggle;
+      digitalWrite(12, toggle);
+      old_time = new_time;
+      Serial.print("kanal1=");
+      Serial.println(emg_analog);
+      Serial.print("kanal2=");
+      Serial.println(emg_analog2);
+    }
+    if (new_time - old_time2 > 400) {
+      toggle = !toggle;
+      digitalWrite(17, toggle);
+      old_time2 = new_time;
+      // İstemci adresini alın
+      parmak_1b_analog = analogRead(poz_fb_1);
+      parmak_2is_analog = analogRead(poz_fb_2);
+      parmak_3or_analog = analogRead(poz_fb_3);
+      parmak_4yz_analog = analogRead(poz_fb_4);
+      parmak_5sr_analog = analogRead(poz_fb_5);
+
+      // İstemciye analog değeri gönderin
+      Robotik_data = "Ro=" + String(parmak_1b_analog) + "_" + String(parmak_2is_analog) + "_" +
+       String(parmak_3or_analog) + "_" + String(parmak_4yz_analog) + "_" 
+       + String(parmak_5sr_analog) + "_" + String(emg_analog);
+      IPAddress local_IP(192, 168, 11, 34);
+       //   // İstemci adresini alın
+       // IPAddress remoteIp = udp.remoteIP();
+       // int remotePort = udp.remotePort();
+       // udp.beginPacket(remoteIp, remotePort);
+       // udp.println(Robotik_data);
+       // udp.endPacket();
+    }
+
+    // İstemci mesajını bekleyin
+    int packetSize = udp.parsePacket();
+    if (packetSize) {
+      Serial.println("Paket alındı");
+      // İstemciden PWM değerini alın
+      while (udp.available()) {
+        int len = udp.read(udp_paketi, 20);
+        if (len > 0) {
+          udp_paketi[len] = 0;
+          Serial.print("Gelen veri: ");
+          Serial.println(udp_paketi);
+          // Gelen stringi parçala
+          char *token = strtok(udp_paketi, "_");
+          if (token != NULL) {
+            parmak_1b_pwm = atoi(token);
+            token = strtok(NULL, "_");
+          }
+          if (token != NULL) {
+            parmak_2is_pwm = atoi(token);
+            token = strtok(NULL, "_");
+          }
+          if (token != NULL) {
+            parmak_3or_pwm = atoi(token);
+            token = strtok(NULL, "_");
+          }
+          if (token != NULL) {
+            parmak_4yz_pwm = atoi(token);
+            token = strtok(NULL, "_");
+          }
+          if (token != NULL) {
+            parmak_5sr_pwm = atoi(token);
+          }
+        }
+        ledcWrite(pwm_kanal_1, parmak_1b_pwm);
+        ledcWrite(pwm_kanal_2, parmak_2is_pwm);
+        ledcWrite(pwm_kanal_3, parmak_3or_pwm);
+        ledcWrite(pwm_kanal_4, parmak_4yz_pwm);
+        ledcWrite(pwm_kanal_5, parmak_5sr_pwm);
+        ledcWrite(ledChannel, parmak_1b_pwm);
+      }
+    }
+  }
+}
 
 void waitForCredentials() {
   String input;
@@ -180,12 +267,10 @@ void waitForCredentials() {
             writeStringToEEPROM(0, ssid);
             writeStringToEEPROM(32, password);
             EEPROM.commit();
-
             // Cihazı yeniden başlat
             ESP.restart();
           }
         }
-
         // Giriş tamamlandığında input'u temizle
         input = "";
       }
@@ -201,7 +286,6 @@ void writeStringToEEPROM(int addr, String data) {
   }
   EEPROM.write(addr + len, '\0');  // String sonuna null karakter ekle
 }
-
 // EEPROM'dan string okuma fonksiyonu
 String readStringFromEEPROM(int addr) {
   char data[32];
@@ -218,12 +302,9 @@ String readStringFromEEPROM(int addr) {
 }
 
 void connectToWifi(const String &ssid, const String &password) {
-
-  if (!WiFi.config(local_IP, gateway, subnet, primaryDNS,
-                   secondaryDNS)) {
+  if (!WiFi.config(local_IP, gateway, subnet, primaryDNS, secondaryDNS)) {
     Serial.println("Wifi konfigurasyon hatasi!");
   }
-
 
   if (ssid.length() > 0 && password.length() > 0) {
     // WiFi'ye bağlanmayı dene
@@ -243,7 +324,6 @@ void connectToWifi(const String &ssid, const String &password) {
     if (WiFi.status() == WL_CONNECTED) {
       Serial.println("\nWifi'e baglandi");
       wifiConnected = true;  // WiFi bağlantısı başarılı
-
 
       // UDP sunucusunu başlat
       if (udp.begin(localPort)) {
