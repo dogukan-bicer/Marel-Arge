@@ -149,14 +149,15 @@ void loop() {
 void Task1code(void *parameter) {
   for (;;) {
     emg_analog = ads.readADC_SingleEnded(0);
-    emg_analog2 = ads.readADC_SingleEnded(1);
+    emg_analog2 = analogRead(poz_fb_1);
 
-    // //udp sunucusuna gönder
-    //IPAddress remoteIp = udp.remoteIP();
-    //udp.beginPacket(remoteIp, localPort);
-    //String test_Str = String(emg_analog) + ">" + String(emg_analog2);
-    //udp.println(test_Str);
-    //udp.endPacket();
+
+    //udp sunucusuna gönder
+    IPAddress remoteIp = udp.remoteIP();
+    udp.beginPacket(remoteIp, localPort);
+    String test_Str = String(emg_analog) + ">" + String(emg_analog2);
+    udp.println(test_Str);
+    udp.endPacket();
   }
 }
 
@@ -189,11 +190,11 @@ void Task2code(void *parameter) {
        + String(parmak_5sr_analog) + "_" + String(emg_analog);
       IPAddress local_IP(192, 168, 11, 34);
        //   // İstemci adresini alın
-        IPAddress remoteIp = udp.remoteIP();
-        int remotePort = udp.remotePort();
-        udp.beginPacket(remoteIp, remotePort);
-        udp.println(Robotik_data);
-        udp.endPacket();
+       // IPAddress remoteIp = udp.remoteIP();
+       // int remotePort = udp.remotePort();
+       // udp.beginPacket(remoteIp, remotePort);
+       // udp.println(Robotik_data);
+       // udp.endPacket();
     }
 
     // İstemci mesajını bekleyin
