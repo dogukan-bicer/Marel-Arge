@@ -148,8 +148,8 @@ void loop() {
 
 void Task1code(void *parameter) {
   for (;;) {
-    emg_analog = ads.readADC_SingleEnded(0);
-    emg_analog2 = analogRead(poz_fb_1);
+    emg_analog = ads.readADC_Differential_0_1();
+    emg_analog2 = ads.readADC_Differential_2_3();
 
 
     //udp sunucusuna gönder
