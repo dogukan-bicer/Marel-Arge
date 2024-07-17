@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -327,6 +327,12 @@ namespace Marel_Arge
                             y_eksen_label.Content = y_eksen;
                             z_eksen_label.Content = z_eksen;
                             pil_seviyesi_label.Content = batarya;
+
+                            flex_sensor_1_label.Foreground = flex_sensor_2 > 1800 ? Brushes.Green : Brushes.Black;
+                            flex_sensor_2_label.Foreground = flex_sensor_5 > 1800 ? Brushes.Green : Brushes.Black;
+                            flex_sensor_3_label.Foreground = flex_sensor_3 > 1800 ? Brushes.Green : Brushes.Black;
+                            flex_sensor_4_label.Foreground = flex_sensor_4 > 1800 ? Brushes.Green : Brushes.Black;
+                            flex_sensor_5_label.Foreground = flex_sensor_1 > 1800 ? Brushes.Green : Brushes.Black;
                         }
                     }
                 }
@@ -580,11 +586,11 @@ namespace Marel_Arge
 
         private async void eldiven_ayarla_1(object sender, RoutedEventArgs e)
         {
-            flex_sensor_1 = flex_sensor_1 > 2000 ? 0 : 255;
-            flex_sensor_2 = flex_sensor_2 > 2000 ? 0 : 255;
-            flex_sensor_3 = flex_sensor_3 > 2000 ? 0 : 255;
-            flex_sensor_4 = flex_sensor_4 > 2000 ? 0 : 255;
-            flex_sensor_5 = flex_sensor_5 > 2400 ? 0 : 255;
+            flex_sensor_1 = flex_sensor_1 > 1800 ? 0 : 255;
+            flex_sensor_2 = flex_sensor_2 > 1800 ? 0 : 255;
+            flex_sensor_3 = flex_sensor_3 > 1800 ? 0 : 255;
+            flex_sensor_4 = flex_sensor_4 > 1800 ? 0 : 255;
+            flex_sensor_5 = flex_sensor_5 > 1800 ? 0 : 255;
 
             await EldivendenGonder(flex_sensor_1, flex_sensor_2, flex_sensor_3, flex_sensor_4, flex_sensor_5);
         }
