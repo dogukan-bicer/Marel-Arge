@@ -180,7 +180,8 @@ void Task1code(void *parameter) {
     //pin on ise blurtooth'a gönder degilse udp den gönder
     if (old_wifi_or_bluetooth) {
       IPAddress remoteIp = udp.remoteIP();
-      udp.beginPacket(remoteIp, localPort);
+      int remotePort = udp.remotePort();
+      udp.beginPacket(remoteIp, remotePort);
       udp.println(test_Str);
       udp.endPacket();
     }
