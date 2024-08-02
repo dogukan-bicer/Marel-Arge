@@ -74,10 +74,13 @@ IPAddress secondaryDNS(8, 8, 4, 4);  // optional
 #define EEPROM_SIZE 96
 bool wifiConnected = false;
 
-TaskHandle_t Task1;
-TaskHandle_t Task2;
+TaskHandle_t emg_gonder_bluetooth=NULL;
+TaskHandle_t emg_gonder_wifi=NULL;
+TaskHandle_t robotik_wifi=NULL;
+TaskHandle_t robotik_bluetooth=NULL;
 
 void setup() {
+  Serial.begin(115200);
   if (!ads.begin()) {
     Serial.println("Failed to initialize ADS.");
     while (1)
@@ -86,7 +89,6 @@ void setup() {
   ads.setGain(GAIN_ONE);  // 1x gain   +/- 4.096V  1 bit = 2mV      0.125mV
   ads.setDataRate(RATE_ADS1115_860SPS);
 
-  Serial.begin(115200);
   Serial.println(".:Marel Arge:.");
   pinMode(12, OUTPUT);
   pinMode(17, OUTPUT);
@@ -136,89 +138,108 @@ void setup() {
       Serial.println("EEPROM'dan SSID ve şifre okunuyor.");
       // EEPROM'dan SSID ve şifreyi okuma işlemini yap
       String ssid = readStringFromEEPROM(0);
-       String password = readStringFromEEPROM(32);
-
+      String password = readStringFromEEPROM(32);
       // WiFi bağlantısını kurma işlemini gerçekleştir
       connectToWifi(ssid, password);
       Serial.println("UDP Baglandi");
     }
+      xTaskCreatePinnedToCore(
+        emg_gonder_wifi_handler, /* Görev fonksiyonu. */
+        "emg gonder wifi",   /* Görev adı. */
+        10000,     /* Yığın boyutu. */
+        NULL,      /* Parametre. */
+        1,         /* Görev önceliği. */
+        &emg_gonder_wifi,    /* Görev tanıtıcısı. */
+        1);    /* Çekirdek. */
+
+      xTaskCreatePinnedToCore(
+        robotik_wifi_handler, /* Görev fonksiyonu. */
+        "robotik wifi",   /* Görev adı. */
+        10000,     /* Yığın boyutu. */
+        NULL,      /* Parametre. */
+        1,         /* Görev önceliği. */
+        &robotik_wifi,    /* Görev tanıtıcısı. */
+        0);        /* Çekirdek. */
+
   }else{
       SerialBT.begin("Marel Robotik"); // Bluetooth cihaz adını ayarla
+
+      xTaskCreatePinnedToCore(
+        emg_gonder_bluetooth_handler, /* Görev fonksiyonu. */
+        "emg gonder bluetooth",   /* Görev adı. */
+        10000,     /* Yığın boyutu. */
+        NULL,      /* Parametre. */
+        1,         /* Görev önceliği. */
+        &emg_gonder_bluetooth,    /* Görev tanıtıcısı. */
+        1);        /* Çekirdek. */
+
+      xTaskCreatePinnedToCore(
+        robotik_bluetooth_handler, /* Görev fonksiyonu. */
+        "robotik bluetooth",   /* Görev adı. */
+        10000,     /* Yığın boyutu. */
+        NULL,      /* Parametre. */
+        1,         /* Görev önceliği. */
+        &robotik_bluetooth,    /* Görev tanıtıcısı. */
+        0);        /* Çekirdek. */
+
       Serial.println("Bluetooth Baglandi");
   }
-
-  xTaskCreatePinnedToCore(
-      Task1code, /* Görev fonksiyonu. */
-      "Task1",   /* Görev adı. */
-      10000,     /* Yığın boyutu. */
-      NULL,      /* Parametre. */
-      1,         /* Görev önceliği. */
-      &Task1,    /* Görev tanıtıcısı. */
-      0);        /* Çekirdek. */
-
-  xTaskCreatePinnedToCore(
-      Task2code, /* Görev fonksiyonu. */
-      "Task2",   /* Görev adı. */
-      10000,     /* Yığın boyutu. */
-      NULL,      /* Parametre. */
-      1,         /* Görev önceliği. */
-      &Task2,    /* Görev tanıtıcısı. */
-      1);        /* Çekirdek. */
 }
 
 void loop() {
   // Boş bırakıldı. Tüm işler taskler tarafından yapılacak.
 }
 
-void Task1code(void *parameter) {
+void emg_gonder_bluetooth_handler(void *parameter) {
   for (;;) {
     emg_analog = ads.readADC_Differential_0_1();
     emg_analog2 = ads.readADC_Differential_2_3();
-
     String test_Str = "Em=" + String(emg_analog) + ">" + String(emg_analog2);
-
-    //pin on ise blurtooth'a gönder degilse udp den gönder
-    if (old_wifi_or_bluetooth) {
-      IPAddress remoteIp = udp.remoteIP();
-      int remotePort = udp.remotePort();
-      udp.beginPacket(remoteIp, remotePort);
-      udp.println(test_Str);
-      udp.endPacket();
-    }
-    else{
-      SerialBT.println(test_Str);
-    }
+    SerialBT.println(test_Str);
   }
 }
 
-void Task2code(void *parameter) {
+void emg_gonder_wifi_handler(void *parameter) {
+  for (;;) {
+    emg_analog = ads.readADC_Differential_0_1();
+    emg_analog2 = ads.readADC_Differential_2_3();
+    String test_Str = "Em=" + String(emg_analog) + ">" + String(emg_analog2);
+    IPAddress remoteIp = udp.remoteIP();
+    int remotePort = udp.remotePort();
+    udp.beginPacket(remoteIp, remotePort);
+    udp.println(test_Str);
+    udp.endPacket();
+  }
+}
+
+void robotik_bluetooth_handler(void *parameter) {
   for (;;) {
     new_time = millis();
     //pinde değişim var ise esp yi sıfırla
-    if (touchRead(wifi_or_bluetooth_pin) > dokunma_esigi) {
-      wifi_or_bluetooth = true;
-      if (old_wifi_or_bluetooth!=wifi_or_bluetooth) {
-        Serial.println("Bluetoota geçiyor..");
-        ESP.restart();
-      }
-    }
-    else {
-      wifi_or_bluetooth = false;
-      if (old_wifi_or_bluetooth!=wifi_or_bluetooth) {
-        Serial.println("UDP ye geçiyor..");
-        ESP.restart();
-      }
-    }
-
     if (new_time - old_time > 700) {
       toggle = !toggle;
       digitalWrite(12, toggle);
+          //pinde değişim var ise esp yi sıfırla
+      if (touchRead(wifi_or_bluetooth_pin) > dokunma_esigi) {
+        wifi_or_bluetooth = true;
+        if (old_wifi_or_bluetooth!=wifi_or_bluetooth) {
+          Serial.println("Bluetoota geçiyor..");
+          ESP.restart();
+        }
+      }
+      else {
+        wifi_or_bluetooth = false;
+        if (old_wifi_or_bluetooth!=wifi_or_bluetooth) {
+          Serial.println("UDP ye geçiyor..");
+          ESP.restart();
+        }
+      }
       old_time = new_time;
     }
-    if (new_time - old_time2 > 400) {
+
+    if (new_time - old_time2 > 350) {
       toggle = !toggle;
       digitalWrite(17, toggle);
-      old_time2 = new_time;
       // İstemci adresini alın
       parmak_1b_analog = analogRead(poz_fb_1);
       parmak_2is_analog = analogRead(poz_fb_2);
@@ -229,21 +250,10 @@ void Task2code(void *parameter) {
       Robotik_data = "Ro=" + String(parmak_1b_analog) + "_" + String(parmak_2is_analog) + "_" +
       String(parmak_3or_analog) + "_" + String(parmak_4yz_analog) + "_" 
       + String(parmak_5sr_analog) + "_" + String(emg_analog);
-
-      if (old_wifi_or_bluetooth) {
-        //   // İstemci adresini alın
-         IPAddress remoteIp = udp.remoteIP();
-         int remotePort = udp.remotePort();
-         udp.beginPacket(remoteIp, remotePort);
-         udp.println(Robotik_data);
-         udp.endPacket();
-         Serial.println("Giden UDP paketi=" + Robotik_data);
-      } else {
-         SerialBT.println(Robotik_data);
-         Serial.println("Giden Bluetooth paketi=" + Robotik_data);
-      }
+      SerialBT.println(Robotik_data);
+      Serial.println("Giden Bluetooth paketi=" + Robotik_data);
+      old_time2 = new_time;
     }
-
      // Bluetooth üzerinden gelen mesajları bekleyin
     if (SerialBT.available()) {
       Serial.println("Bluetooth mesajı alındı");
@@ -290,6 +300,55 @@ void Task2code(void *parameter) {
         Serial.println("Geçersiz veri formatı");
       }
     }
+    vTaskDelay(1);
+  }
+}
+
+void robotik_wifi_handler(void *parameter) {
+  for (;;) {
+    new_time = millis();
+    if (new_time - old_time > 700) {
+      toggle = !toggle;
+      digitalWrite(12, toggle);
+          //pinde değişim var ise esp yi sıfırla
+      if (touchRead(wifi_or_bluetooth_pin) > dokunma_esigi) {
+        wifi_or_bluetooth = true;
+        if (old_wifi_or_bluetooth!=wifi_or_bluetooth) {
+          Serial.println("Bluetoota geçiyor..");
+          ESP.restart();
+        }
+      }
+      else {
+        wifi_or_bluetooth = false;
+        if (old_wifi_or_bluetooth!=wifi_or_bluetooth) {
+          Serial.println("UDP ye geçiyor..");
+          ESP.restart();
+        }
+      }
+      old_time = new_time;
+    }
+    if (new_time - old_time2 > 350) {
+      toggle = !toggle;
+      digitalWrite(17, toggle);
+      old_time2 = new_time;
+      // İstemci adresini alın
+      parmak_1b_analog = analogRead(poz_fb_1);
+      parmak_2is_analog = analogRead(poz_fb_2);
+      parmak_3or_analog = analogRead(poz_fb_3);
+      parmak_4yz_analog = analogRead(poz_fb_4);
+      parmak_5sr_analog = analogRead(poz_fb_5);
+
+      Robotik_data = "Ro=" + String(parmak_1b_analog) + "_" + String(parmak_2is_analog) + "_" +
+      String(parmak_3or_analog) + "_" + String(parmak_4yz_analog) + "_" 
+      + String(parmak_5sr_analog) + "_" + String(emg_analog);
+      //   // İstemci adresini alın
+      IPAddress remoteIp = udp.remoteIP();
+      int remotePort = udp.remotePort();
+      udp.beginPacket(remoteIp, remotePort);
+      udp.println(Robotik_data);
+      udp.endPacket();
+      Serial.println("Giden UDP paketi=" + Robotik_data);
+    }
 
     // udp paketini oku
     int packetSize = udp.parsePacket();
@@ -332,6 +391,7 @@ void Task2code(void *parameter) {
         ledcWrite(ledChannel, parmak_1b_pwm);
       }
     }
+    vTaskDelay(1);
   }
 }
 
