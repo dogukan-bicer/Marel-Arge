@@ -1,160 +1,373 @@
 #include <WiFi.h>
 #include <WiFiUdp.h>
-#include "BNO055_support.h"  //Contains the bridge code between the API and Arduino
-#include <Wire.h>
 #include <EEPROM.h>
-#include "BluetoothSerial.h" // Bluetooth Serial kütüphanesi
+#include <Wire.h>
+#include <Adafruit_ADS1X15.h>
+#include <BluetoothSerial.h>
+#include <BLEDevice.h>
+#include <BLEUtils.h>
+#include <BLEServer.h>
+
+#define wifi_or_bluetooth_pin 2
+#define dokunma_esigi 10
+
+#define mavi_led 17
+#define kirmizi_led 12
+
+Adafruit_ADS1115 ads;  /* Use this for the 16-bit version */
+
+uint32_t new_time, old_time, old_time2;
+boolean toggle = false;
+int analog;
+String Robotik_data;
+// setting PWM properties
+const int freq = 1000;
+const int ledChannel = 0;
+const int resolution = 8;
+
+const int parmak_1b = 33;
+const int parmak_2is = 25;
+const int parmak_3or = 26;
+const int parmak_4yz = 27;
+const int parmak_5sr = 14;
+
+const int poz_fb_1 = 36;
+const int poz_fb_2 = 39;
+const int poz_fb_3 = 34;
+const int poz_fb_4 = 35;
+const int poz_fb_5 = 32;
+
+const int pwm_kanal_1 = 1;
+const int pwm_kanal_2 = 2;
+const int pwm_kanal_3 = 3;
+const int pwm_kanal_4 = 4;
+const int pwm_kanal_5 = 5;
+
+const int emg_adc_pin = 4;
+
+int emg_analog;
+int emg_analog2;
+
+int parmak_1b_pwm, parmak_2is_pwm, parmak_3or_pwm,
+    parmak_4yz_pwm, parmak_5sr_pwm = 0;
+
+int parmak_1b_analog, parmak_2is_analog, parmak_3or_analog,
+    parmak_4yz_analog, parmak_5sr_analog = 0;
+
+char udp_paketi[20];  // Gelen UDP paketi için buffer
+char bluetoothpaketi[20]; // Bluetooth paketi için dizi
+
+const char *ssid = "marel_arge";
+const char *password = "test1234";
+int localPort = 1233;  // UDP sunucusu portu
+
+volatile bool old_wifi_or_bluetooth,wifi_or_bluetooth =false;
+
+WiFiUDP udp;
+BluetoothSerial SerialBT;
+
+// statik ip
+IPAddress local_IP(192, 168, 1, 33);
+IPAddress gateway(192, 168, 1, 1);
+IPAddress subnet(255, 255, 0, 0);
+IPAddress primaryDNS(8, 8, 8, 8);    // optional
+IPAddress secondaryDNS(8, 8, 4, 4);  // optional
 
 #define EEPROM_SIZE 96
 bool wifiConnected = false;
 
-const int led_g = 18;
-const int led_b = 5;
-const int led_r = 17;
-const int flex_1 = 36;
-const int flex_2 = 39;
-const int flex_3 = 34;
-const int flex_4 = 35;
-const int flex_5 = 32;
-const int bat_v = 33;
-
-const char* ssid = "marel_arge";
-const char* password = "test1234";
-const int localPort = 1235; // UDP sunucusu portu
-
-WiFiUDP udp;
-BluetoothSerial SerialBT; // Bluetooth Serial nesnesi
-
-uint32_t new_time, old_time, old_time2, old_time3;
-int flex_analog_1, flex_analog_2, flex_analog_3, flex_analog_4, flex_analog_5;
-int bat_analog;
-boolean toggle, toggle2, toggle3 = false;
-
-int analog;
-
-String Eldiven_data;
-
-//This structure contains the details of the BNO055 device that is connected. (Updated after initialization)
-struct bno055_t myBNO;
-struct bno055_euler myEulerData; //Structure to hold the Euler data
-
-int x_eksen, y_eksen, z_eksen = 0;
-
-//statik ip
-IPAddress local_IP(192, 168, 1, 35);
-IPAddress gateway(192, 168, 1, 1);
-IPAddress subnet(255, 255, 0, 0);
-IPAddress primaryDNS(8, 8, 8, 8);   //optional
-IPAddress secondaryDNS(8, 8, 4, 4); //optional
+TaskHandle_t emg_gonder_bluetooth=NULL;
+TaskHandle_t emg_gonder_wifi=NULL;
+TaskHandle_t robotik_wifi=NULL;
+TaskHandle_t robotik_bluetooth=NULL;
 
 void setup() {
-  //Initialize I2C communication
-  Wire.begin();
-  //Initialization of the BNO055
-  BNO_Init(&myBNO); //Assigning the structure to hold information about the device
-  //Configuration to NDoF mode
-  bno055_set_operation_mode(OPERATION_MODE_NDOF);
-
-  pinMode(led_g, OUTPUT);
-  pinMode(led_b, OUTPUT);
-  pinMode(led_r, OUTPUT);
-  pinMode(flex_1, INPUT);
-  pinMode(bat_v, INPUT);
   Serial.begin(115200);
-  SerialBT.begin("ESP32_BT"); // Bluetooth Serial başlat
+  if (!ads.begin()) {
+    Serial.println("Failed to initialize ADS.");
+    while (1)
+      ;
+  }
+  ads.setGain(GAIN_ONE);  // 1x gain   +/- 4.096V  1 bit = 2mV      0.125mV
+  ads.setDataRate(RATE_ADS1115_860SPS);
+
   Serial.println(".:Marel Arge:.");
-  SerialBT.println(".:Marel Arge BT:.");
+  pinMode(12, OUTPUT);
+  pinMode(17, OUTPUT);
 
-  // WiFi ağa bağlan
-  EEPROM.begin(EEPROM_SIZE);
-  Serial.println("EEPROM okunmaya hazır");
+  pinMode(wifi_or_bluetooth_pin, INPUT_PULLUP);
 
-  if (isEEPROMEmpty()) {
-    Serial.println("EEPROM boş, yeni kimlik bilgileri bekleniyor.");
-    waitForCredentials();  // EEPROM boşsa yeni kimlik bilgilerini bekle
-  } else {
-    Serial.println("EEPROM'dan SSID ve şifre okunuyor.");
-    // EEPROM'dan SSID ve şifreyi okuma işlemini yap
-    String ssid = readStringFromEEPROM(0);
-    String password = readStringFromEEPROM(32);
+  pinMode(emg_adc_pin, INPUT);
 
-    // WiFi bağlantısını kurma işlemini gerçekleştir
-    connectToWifi(ssid, password);
+  pinMode(2, INPUT);
+  pinMode(4, INPUT);
+  pinMode(13, INPUT);
+  pinMode(15, INPUT);
+
+  pinMode(poz_fb_1, INPUT);
+  pinMode(poz_fb_2, INPUT);
+  pinMode(poz_fb_3, INPUT);
+  pinMode(poz_fb_4, INPUT);
+  pinMode(poz_fb_5, INPUT);
+  // LED PWM işlevlerini yapılandırır
+  ledcSetup(pwm_kanal_1, freq, resolution);
+  ledcSetup(pwm_kanal_2, freq, resolution);
+  ledcSetup(pwm_kanal_3, freq, resolution);
+  ledcSetup(pwm_kanal_4, freq, resolution);
+  ledcSetup(pwm_kanal_5, freq, resolution);
+  // kontrol edilecek kanalı GPIO'ya ekler
+
+  ledcAttachPin(parmak_1b, pwm_kanal_1);
+  ledcAttachPin(parmak_2is, pwm_kanal_2);
+  ledcAttachPin(parmak_3or, pwm_kanal_3);
+  ledcAttachPin(parmak_4yz, pwm_kanal_4);
+  ledcAttachPin(parmak_5sr, pwm_kanal_5);
+  // Pin durumuna göre wifi yada bluetootha bağlan
+  if (touchRead(wifi_or_bluetooth_pin) > dokunma_esigi) {
+    EEPROM.begin(EEPROM_SIZE);
+    Serial.println("EEPROM okunmaya hazır");
+    if (isEEPROMEmpty()) {
+      Serial.println("EEPROM boş, yeni kimlik bilgileri bekleniyor.");
+      waitForCredentials();  // EEPROM boşsa yeni kimlik bilgilerini bekle
+    } else {
+      Serial.println("EEPROM'dan SSID ve şifre okunuyor.");
+      // EEPROM'dan SSID ve şifreyi okuma işlemini yap
+      String ssid = readStringFromEEPROM(0);
+      String password = readStringFromEEPROM(32);
+      // WiFi bağlantısını kurma işlemini gerçekleştir
+      connectToWifi(ssid, password);
+      Serial.println("UDP Baglandi");
+    }
+      ledcSetup(ledChannel, freq, resolution);
+      ledcAttachPin(mavi_led, ledChannel);
+
+      xTaskCreatePinnedToCore(
+        emg_gonder_wifi_handler, /* Görev fonksiyonu. */
+        "emg gonder wifi",   /* Görev adı. */
+        10000,     /* Yığın boyutu. */
+        NULL,      /* Parametre. */
+        1,         /* Görev önceliği. */
+        &emg_gonder_wifi,    /* Görev tanıtıcısı. */
+        1);    /* Çekirdek. */
+
+      xTaskCreatePinnedToCore(
+        robotik_wifi_handler, /* Görev fonksiyonu. */
+        "robotik wifi",   /* Görev adı. */
+        10000,     /* Yığın boyutu. */
+        NULL,      /* Parametre. */
+        1,         /* Görev önceliği. */
+        &robotik_wifi,    /* Görev tanıtıcısı. */
+        0);        /* Çekirdek. */
+
+  }else{
+      SerialBT.begin("Marel Robotik"); // Bluetooth cihaz adını ayarla
+      ledcSetup(ledChannel, freq, resolution);
+      ledcAttachPin(kirmizi_led, ledChannel);
+
+      xTaskCreatePinnedToCore(
+        emg_gonder_bluetooth_handler, /* Görev fonksiyonu. */
+        "emg gonder bluetooth",   /* Görev adı. */
+        10000,     /* Yığın boyutu. */
+        NULL,      /* Parametre. */
+        1,         /* Görev önceliği. */
+        &emg_gonder_bluetooth,    /* Görev tanıtıcısı. */
+        1);        /* Çekirdek. */
+
+      xTaskCreatePinnedToCore(
+        robotik_bluetooth_handler, /* Görev fonksiyonu. */
+        "robotik bluetooth",   /* Görev adı. */
+        10000,     /* Yığın boyutu. */
+        NULL,      /* Parametre. */
+        1,         /* Görev önceliği. */
+        &robotik_bluetooth,    /* Görev tanıtıcısı. */
+        0);        /* Çekirdek. */
+
+      Serial.println("Bluetooth Baglandi");
   }
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-  new_time = millis();
-  if (new_time - old_time > 500) {
-    flex_analog_1 = analogRead(flex_1);
-    flex_analog_2 = analogRead(flex_2);
-    flex_analog_3 = analogRead(flex_3);
-    flex_analog_4 = analogRead(flex_4);
-    flex_analog_5 = analogRead(flex_5);
-    bat_analog = analogRead(bat_v);
-    Eldiven_data = "El=" + String(flex_analog_1) + '_' +
-                   String(flex_analog_2) + '_' +
-                   String(flex_analog_3) + '_' +
-                   String(flex_analog_4) + '_' +
-                   String(flex_analog_5) + '_' +
-                   String(x_eksen) + '_' +
-                   String(y_eksen) + '_' +
-                   String(z_eksen) + '_' +
-                   String(bat_analog);
-    toggle = !toggle;
-    digitalWrite(led_g, toggle);
-    old_time = new_time;
+  // Boş bırakıldı. Tüm işler taskler tarafından yapılacak.
+}
+
+void emg_gonder_bluetooth_handler(void *parameter) {
+  for (;;) {
+    emg_analog = ads.readADC_Differential_0_1();
+    emg_analog2 = ads.readADC_Differential_2_3();
+    String test_Str = "Em=" + String(emg_analog) + ">" + String(emg_analog2);
+    SerialBT.println(test_Str);
   }
-  if (new_time - old_time2 > 250) {
-    bno055_read_euler_hrp(&myEulerData); //Update Euler data into the structure
+}
 
-    x_eksen = int(myEulerData.h) / 16;
-    Serial.print("Heading(Yaw): "); //To read out the Heading (Yaw)
-    Serial.println(x_eksen);        //Convert to degrees
-
-    y_eksen = int(myEulerData.r) / 16;
-    Serial.print("Roll: "); //To read out the Roll
-    Serial.println(y_eksen); //Convert to degrees
-
-    z_eksen = int(myEulerData.p) / 16;
-    Serial.print("Pitch: "); //To read out the Pitch
-    Serial.println(z_eksen); //Convert to degrees
-
-    toggle2 = !toggle2;
-    digitalWrite(led_b, toggle2);
-    old_time2 = new_time;
+void emg_gonder_wifi_handler(void *parameter) {
+  for (;;) {
+    emg_analog = ads.readADC_Differential_0_1();
+    emg_analog2 = ads.readADC_Differential_2_3();
+    String test_Str = "Em=" + String(emg_analog) + ">" + String(emg_analog2);
+    IPAddress remoteIp = udp.remoteIP();
+    int remotePort = udp.remotePort();
+    udp.beginPacket(remoteIp, remotePort);
+    udp.println(test_Str);
+    udp.endPacket();
   }
-  if (new_time - old_time3 > 750) {
-    toggle3 = !toggle3;
-    digitalWrite(led_r, toggle3);
-    old_time3 = new_time;
+}
 
-    if (wifiConnected) {
-      // WiFi üzerinden veri gönder
+void robotik_bluetooth_handler(void *parameter) {
+  for (;;) {
+    new_time = millis();
+    //pinde değişim var ise esp yi sıfırla
+    if (new_time - old_time > 700) {
+      toggle = !toggle;
+      digitalWrite(mavi_led, toggle);
+      //pinde değişim var ise esp yi sıfırla
+      if (touchRead(wifi_or_bluetooth_pin) > dokunma_esigi) {
+        Serial.println("UDP ye geçiyor..");
+        ESP.restart();
+      }
+      old_time = new_time;
+    }
+
+    if (new_time - old_time2 > 350) {
+      // İstemci adresini alın
+      parmak_1b_analog = analogRead(poz_fb_1);
+      parmak_2is_analog = analogRead(poz_fb_2);
+      parmak_3or_analog = analogRead(poz_fb_3);
+      parmak_4yz_analog = analogRead(poz_fb_4);
+      parmak_5sr_analog = analogRead(poz_fb_5);
+
+      Robotik_data = "Ro=" + String(parmak_1b_analog) + "_" + String(parmak_2is_analog) + "_" +
+      String(parmak_3or_analog) + "_" + String(parmak_4yz_analog) + "_" 
+      + String(parmak_5sr_analog) + "_" + String(emg_analog);
+      SerialBT.println(Robotik_data);
+      Serial.println("Giden Bluetooth paketi=" + Robotik_data);
+      old_time2 = new_time;
+    }
+     // Bluetooth üzerinden gelen mesajları bekleyin
+    if (SerialBT.available()) {
+      Serial.println("Bluetooth mesajı alındı");
+      int index = 0;
+
+      // Diziyi temizle
+      memset(bluetoothpaketi, 0, sizeof(bluetoothpaketi));
+
+      // Bluetooth üzerinden gelen veriyi diziye aktar
+      while (SerialBT.available() && index < sizeof(bluetoothpaketi) - 1) {
+        char c = SerialBT.read();
+        bluetoothpaketi[index++] = c;
+      }
+
+      // Diziyi string olarak işleyin
+      String receivedData = String(bluetoothpaketi);
+      receivedData.trim();
+      Serial.print("Gelen veri: ");
+      Serial.println(receivedData);
+      
+      // Gelen stringi parçala
+      int tokens[5];
+      index = 0;
+      char* token = strtok(bluetoothpaketi, "_");
+      while (token != NULL && index < 5) {
+        tokens[index++] = atoi(token);
+        token = strtok(NULL, "_");
+      }
+      
+      if (index == 5) {
+        parmak_1b_pwm = tokens[0];
+        parmak_2is_pwm = tokens[1];
+        parmak_3or_pwm = tokens[2];
+        parmak_4yz_pwm = tokens[3];
+        parmak_5sr_pwm = tokens[4];
+
+        ledcWrite(pwm_kanal_1, parmak_1b_pwm);
+        ledcWrite(pwm_kanal_2, parmak_2is_pwm);
+        ledcWrite(pwm_kanal_3, parmak_3or_pwm);
+        ledcWrite(pwm_kanal_4, parmak_4yz_pwm);
+        ledcWrite(pwm_kanal_5, parmak_5sr_pwm);
+        ledcWrite(ledChannel, parmak_1b_pwm);
+      } else {
+        Serial.println("Geçersiz veri formatı");
+      }
+    }
+    vTaskDelay(1);
+  }
+}
+
+void robotik_wifi_handler(void *parameter) {
+  for (;;) {
+    new_time = millis();
+    if (new_time - old_time > 700) {
+      toggle = !toggle;
+      digitalWrite(kirmizi_led, toggle);
+          //pinde değişim var ise esp yi sıfırla
+      if (touchRead(wifi_or_bluetooth_pin) < dokunma_esigi) {
+          Serial.println("Bluetoota geçiyor..");
+          ESP.restart();
+      }
+      old_time = new_time;
+    }
+    if (new_time - old_time2 > 350) {
+      old_time2 = new_time;
+      // İstemci adresini alın
+      parmak_1b_analog = analogRead(poz_fb_1);
+      parmak_2is_analog = analogRead(poz_fb_2);
+      parmak_3or_analog = analogRead(poz_fb_3);
+      parmak_4yz_analog = analogRead(poz_fb_4);
+      parmak_5sr_analog = analogRead(poz_fb_5);
+
+      Robotik_data = "Ro=" + String(parmak_1b_analog) + "_" + String(parmak_2is_analog) + "_" +
+      String(parmak_3or_analog) + "_" + String(parmak_4yz_analog) + "_" 
+      + String(parmak_5sr_analog) + "_" + String(emg_analog);
+      //   // İstemci adresini alın
       IPAddress remoteIp = udp.remoteIP();
       int remotePort = udp.remotePort();
       udp.beginPacket(remoteIp, remotePort);
-      udp.println(Eldiven_data);
+      udp.println(Robotik_data);
       udp.endPacket();
-    } 
-      // Bluetooth üzerinden veri gönder
-      SerialBT.println(Eldiven_data);
-  }
-  delay(1);
+      Serial.println("Giden UDP paketi=" + Robotik_data);
+    }
 
-  if (wifiConnected) {
-    // WiFi bağlantısı varsa istemci mesajını bekleyin
+    // udp paketini oku
     int packetSize = udp.parsePacket();
     if (packetSize) {
       Serial.println("Paket alındı");
       // İstemciden PWM değerini alın
       while (udp.available()) {
-        int pwmValue = udp.read();
-        Serial.print("sunucudan veri alındı: ");
-        Serial.println(pwmValue);
+        int len = udp.read(udp_paketi, 20);
+        if (len > 0) {
+          udp_paketi[len] = 0;
+          Serial.print("Gelen veri: ");
+          Serial.println(udp_paketi);
+          // Gelen stringi parçala
+          char *token = strtok(udp_paketi, "_");
+          if (token != NULL) {
+            parmak_1b_pwm = atoi(token);
+            token = strtok(NULL, "_");
+          }
+          if (token != NULL) {
+            parmak_2is_pwm = atoi(token);
+            token = strtok(NULL, "_");
+          }
+          if (token != NULL) {
+            parmak_3or_pwm = atoi(token);
+            token = strtok(NULL, "_");
+          }
+          if (token != NULL) {
+            parmak_4yz_pwm = atoi(token);
+            token = strtok(NULL, "_");
+          }
+          if (token != NULL) {
+            parmak_5sr_pwm = atoi(token);
+          }
+        }
+        ledcWrite(pwm_kanal_1, parmak_1b_pwm);
+        ledcWrite(pwm_kanal_2, parmak_2is_pwm);
+        ledcWrite(pwm_kanal_3, parmak_3or_pwm);
+        ledcWrite(pwm_kanal_4, parmak_4yz_pwm);
+        ledcWrite(pwm_kanal_5, parmak_5sr_pwm);
+        ledcWrite(ledChannel, parmak_1b_pwm);
       }
     }
+    vTaskDelay(1);
   }
 }
 
@@ -170,7 +383,7 @@ void waitForCredentials() {
       input += ch;
 
       if (ch == '\n') {
-        input.trim(); // Trim uygula
+        input.trim();  // Trim uygula
         if (!ssidReceived) {
           ssid = input;
           Serial.println("SSID alindi: " + ssid);
@@ -184,12 +397,10 @@ void waitForCredentials() {
             writeStringToEEPROM(0, ssid);
             writeStringToEEPROM(32, password);
             EEPROM.commit();
-
             // Cihazı yeniden başlat
             ESP.restart();
           }
         }
-
         // Giriş tamamlandığında input'u temizle
         input = "";
       }
@@ -203,9 +414,8 @@ void writeStringToEEPROM(int addr, String data) {
   for (int i = 0; i < len; i++) {
     EEPROM.write(addr + i, data[i]);
   }
-  EEPROM.write(addr + len, '\0'); // String sonuna null karakter ekle
+  EEPROM.write(addr + len, '\0');  // String sonuna null karakter ekle
 }
-
 // EEPROM'dan string okuma fonksiyonu
 String readStringFromEEPROM(int addr) {
   char data[32];
@@ -231,20 +441,20 @@ void connectToWifi(const String &ssid, const String &password) {
     WiFi.begin(ssid.c_str(), password.c_str());
     Serial.print("Wifi'e baglaniyor");
 
-    unsigned long startAttemptTime = millis(); // Bağlantı denemesinin başlangıç zamanını kaydet
-
-    while (WiFi.status() != WL_CONNECTED && millis() - startAttemptTime < 5000) { // 5 saniye sınırı
+    while (WiFi.status() != WL_CONNECTED) {
       delay(500);
       Serial.print(".");
 
       // UART üzerinden yeni SSID ve şifre almayı kontrol et
       if (Serial.available()) {
-        waitForCredentials(); // Yeni kimlik bilgilerini bekle
+        waitForCredentials();  // Yeni kimlik bilgilerini bekle
       }
     }
 
     if (WiFi.status() == WL_CONNECTED) {
       Serial.println("\nWifi'e baglandi");
+      wifiConnected = true;  // WiFi bağlantısı başarılı
+
       // UDP sunucusunu başlat
       if (udp.begin(localPort)) {
         Serial.println("UDP sunucusu başlatıldı");
@@ -253,12 +463,11 @@ void connectToWifi(const String &ssid, const String &password) {
       } else {
         Serial.println("UDP sunucusu başlatılamadı");
         while (1)
-          ; // Durdur ve hata durumunda döngüye gir
+          ;  // Durdur ve hata durumunda döngüye gir
       }
-      wifiConnected = true; // WiFi bağlantısı başarılı
     } else {
-      Serial.println("\nBaglanti basarisiz, Bluetooth ile devam ediliyor.");
-      wifiConnected = false; // WiFi bağlantısı başarısız
+      Serial.println("\nBaglanti basarisiz kimlik bilgileri bekleniyor.");
+      waitForCredentials();  // WiFi'ye bağlanamazsa yeni kimlik bilgilerini bekle
     }
   } else {
     // EEPROM'da SSID veya şifre yoksa yeni kimlik bilgilerini bekle
