@@ -11,6 +11,9 @@
 #define wifi_or_bluetooth_pin 2
 #define dokunma_esigi 10
 
+#define mavi_led 17
+#define kirmizi_led 12
+
 Adafruit_ADS1115 ads;  /* Use this for the 16-bit version */
 
 uint32_t new_time, old_time, old_time2;
@@ -21,7 +24,6 @@ String Robotik_data;
 const int freq = 1000;
 const int ledChannel = 0;
 const int resolution = 8;
-const int ledPin = 17;
 
 const int parmak_1b = 33;
 const int parmak_2is = 25;
@@ -41,10 +43,7 @@ const int pwm_kanal_3 = 3;
 const int pwm_kanal_4 = 4;
 const int pwm_kanal_5 = 5;
 
-const int emg_adc_pin = 4;
-
-int emg_analog;
-int emg_analog2;
+int emg_analog,emg_analog2;
 
 int parmak_1b_pwm, parmak_2is_pwm, parmak_3or_pwm,
     parmak_4yz_pwm, parmak_5sr_pwm = 0;
@@ -55,11 +54,7 @@ int parmak_1b_analog, parmak_2is_analog, parmak_3or_analog,
 char udp_paketi[20];  // Gelen UDP paketi için buffer
 char bluetoothpaketi[20]; // Bluetooth paketi için dizi
 
-const char *ssid = "marel_arge";
-const char *password = "test1234";
 int localPort = 1233;  // UDP sunucusu portu
-
-volatile bool old_wifi_or_bluetooth,wifi_or_bluetooth =false;
 
 WiFiUDP udp;
 BluetoothSerial SerialBT;
@@ -82,7 +77,7 @@ TaskHandle_t robotik_bluetooth=NULL;
 void setup() {
   Serial.begin(115200);
   if (!ads.begin()) {
-    Serial.println("Failed to initialize ADS.");
+    Serial.println("ADS1115 baslatilamadi.");
     while (1)
       ;
   }
@@ -93,9 +88,7 @@ void setup() {
   pinMode(12, OUTPUT);
   pinMode(17, OUTPUT);
 
-  pinMode(wifi_or_bluetooth, INPUT_PULLUP);
-
-  pinMode(emg_adc_pin, INPUT);
+  pinMode(wifi_or_bluetooth_pin, INPUT_PULLUP);
 
   pinMode(2, INPUT);
   pinMode(4, INPUT);
@@ -108,27 +101,24 @@ void setup() {
   pinMode(poz_fb_4, INPUT);
   pinMode(poz_fb_5, INPUT);
   // LED PWM işlevlerini yapılandırır
-  ledcSetup(ledChannel, freq, resolution);
   ledcSetup(pwm_kanal_1, freq, resolution);
   ledcSetup(pwm_kanal_2, freq, resolution);
   ledcSetup(pwm_kanal_3, freq, resolution);
   ledcSetup(pwm_kanal_4, freq, resolution);
   ledcSetup(pwm_kanal_5, freq, resolution);
+  ledcSetup(ledChannel, freq, resolution);
   // kontrol edilecek kanalı GPIO'ya ekler
-  ledcAttachPin(ledPin, ledChannel);
+
   ledcAttachPin(parmak_1b, pwm_kanal_1);
   ledcAttachPin(parmak_2is, pwm_kanal_2);
   ledcAttachPin(parmak_3or, pwm_kanal_3);
   ledcAttachPin(parmak_4yz, pwm_kanal_4);
   ledcAttachPin(parmak_5sr, pwm_kanal_5);
-  // Pin durumuna göre wifi yada bluetootha bağlan
-  if(touchRead(wifi_or_bluetooth_pin) > dokunma_esigi){
-    old_wifi_or_bluetooth = true;
-  }else{
-    old_wifi_or_bluetooth = false;
-  }
 
-  if (old_wifi_or_bluetooth) {
+  ledcWrite(ledChannel, 0);
+
+  // Pin durumuna göre wifi yada bluetootha bağlan
+  if (touchRead(wifi_or_bluetooth_pin) > dokunma_esigi) {
     EEPROM.begin(EEPROM_SIZE);
     Serial.println("EEPROM okunmaya hazır");
     if (isEEPROMEmpty()) {
@@ -143,6 +133,8 @@ void setup() {
       connectToWifi(ssid, password);
       Serial.println("UDP Baglandi");
     }
+      ledcAttachPin(mavi_led, ledChannel);
+
       xTaskCreatePinnedToCore(
         emg_gonder_wifi_handler, /* Görev fonksiyonu. */
         "emg gonder wifi",   /* Görev adı. */
@@ -163,6 +155,8 @@ void setup() {
 
   }else{
       SerialBT.begin("Marel Robotik"); // Bluetooth cihaz adını ayarla
+
+      ledcAttachPin(kirmizi_led, ledChannel);
 
       xTaskCreatePinnedToCore(
         emg_gonder_bluetooth_handler, /* Görev fonksiyonu. */
@@ -218,28 +212,16 @@ void robotik_bluetooth_handler(void *parameter) {
     //pinde değişim var ise esp yi sıfırla
     if (new_time - old_time > 700) {
       toggle = !toggle;
-      digitalWrite(12, toggle);
-          //pinde değişim var ise esp yi sıfırla
+      digitalWrite(mavi_led, toggle);
+      //pinde değişim var ise esp yi sıfırla
       if (touchRead(wifi_or_bluetooth_pin) > dokunma_esigi) {
-        wifi_or_bluetooth = true;
-        if (old_wifi_or_bluetooth!=wifi_or_bluetooth) {
-          Serial.println("Bluetoota geçiyor..");
-          ESP.restart();
-        }
-      }
-      else {
-        wifi_or_bluetooth = false;
-        if (old_wifi_or_bluetooth!=wifi_or_bluetooth) {
-          Serial.println("UDP ye geçiyor..");
-          ESP.restart();
-        }
+        Serial.println("UDP ye geçiyor..");
+        ESP.restart();
       }
       old_time = new_time;
     }
 
     if (new_time - old_time2 > 350) {
-      toggle = !toggle;
-      digitalWrite(17, toggle);
       // İstemci adresini alın
       parmak_1b_analog = analogRead(poz_fb_1);
       parmak_2is_analog = analogRead(poz_fb_2);
@@ -249,7 +231,7 @@ void robotik_bluetooth_handler(void *parameter) {
 
       Robotik_data = "Ro=" + String(parmak_1b_analog) + "_" + String(parmak_2is_analog) + "_" +
       String(parmak_3or_analog) + "_" + String(parmak_4yz_analog) + "_" 
-      + String(parmak_5sr_analog) + "_" + String(emg_analog);
+      + String(parmak_5sr_analog) + "_";
       SerialBT.println(Robotik_data);
       Serial.println("Giden Bluetooth paketi=" + Robotik_data);
       old_time2 = new_time;
@@ -309,27 +291,15 @@ void robotik_wifi_handler(void *parameter) {
     new_time = millis();
     if (new_time - old_time > 700) {
       toggle = !toggle;
-      digitalWrite(12, toggle);
+      digitalWrite(kirmizi_led, toggle);
           //pinde değişim var ise esp yi sıfırla
-      if (touchRead(wifi_or_bluetooth_pin) > dokunma_esigi) {
-        wifi_or_bluetooth = true;
-        if (old_wifi_or_bluetooth!=wifi_or_bluetooth) {
+      if (touchRead(wifi_or_bluetooth_pin) < dokunma_esigi) {
           Serial.println("Bluetoota geçiyor..");
           ESP.restart();
-        }
-      }
-      else {
-        wifi_or_bluetooth = false;
-        if (old_wifi_or_bluetooth!=wifi_or_bluetooth) {
-          Serial.println("UDP ye geçiyor..");
-          ESP.restart();
-        }
       }
       old_time = new_time;
     }
     if (new_time - old_time2 > 350) {
-      toggle = !toggle;
-      digitalWrite(17, toggle);
       old_time2 = new_time;
       // İstemci adresini alın
       parmak_1b_analog = analogRead(poz_fb_1);
@@ -340,7 +310,7 @@ void robotik_wifi_handler(void *parameter) {
 
       Robotik_data = "Ro=" + String(parmak_1b_analog) + "_" + String(parmak_2is_analog) + "_" +
       String(parmak_3or_analog) + "_" + String(parmak_4yz_analog) + "_" 
-      + String(parmak_5sr_analog) + "_" + String(emg_analog);
+      + String(parmak_5sr_analog) + "_";
       //   // İstemci adresini alın
       IPAddress remoteIp = udp.remoteIP();
       int remotePort = udp.remotePort();
@@ -472,6 +442,11 @@ void connectToWifi(const String &ssid, const String &password) {
       // UART üzerinden yeni SSID ve şifre almayı kontrol et
       if (Serial.available()) {
         waitForCredentials();  // Yeni kimlik bilgilerini bekle
+      }
+      //pinde değişim olursa bluetootha geç
+      if (touchRead(wifi_or_bluetooth_pin) < dokunma_esigi) {
+          Serial.println("Bluetoota geçiyor..");
+          ESP.restart();
       }
     }
 
