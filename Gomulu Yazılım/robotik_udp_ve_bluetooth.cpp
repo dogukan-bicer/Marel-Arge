@@ -218,6 +218,10 @@ void robotik_bluetooth_handler(void *parameter) {
         Serial.println("UDP ye geçiyor..");
         ESP.restart();
       }
+      // UART üzerinden yeni SSID ve şifre almayı kontrol et
+      if (Serial.available()) {
+        waitForCredentials();  // Yeni kimlik bilgilerini bekle
+      }
       old_time = new_time;
     }
 
@@ -297,6 +301,11 @@ void robotik_wifi_handler(void *parameter) {
           Serial.println("Bluetoota geçiyor..");
           ESP.restart();
       }
+      // UART üzerinden yeni SSID ve şifre almayı kontrol et
+      if (Serial.available()) {
+        waitForCredentials();  // Yeni kimlik bilgilerini bekle
+      }
+
       old_time = new_time;
     }
     if (new_time - old_time2 > 350) {
