@@ -5,7 +5,7 @@ using System.Data;
 using System.Linq;
 using System.Windows;
 
-namespace bluetooth_wpf_test
+namespace marel_arge
 {
     /// <summary>
     /// App.xaml etkileşim mantığı

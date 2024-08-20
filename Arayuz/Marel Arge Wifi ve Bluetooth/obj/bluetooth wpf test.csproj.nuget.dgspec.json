@@ -8,7 +8,7 @@
       "version": "1.0.0",
       "restore": {
         "projectUniqueName": "C:\\Users\\doguk\\source\\repos\\bluetooth wpf test\\bluetooth wpf test.csproj",
-        "projectName": "bluetooth wpf test",
+        "projectName": "Marel Arge",
         "projectPath": "C:\\Users\\doguk\\source\\repos\\bluetooth wpf test\\bluetooth wpf test.csproj",
         "packagesPath": "C:\\Users\\doguk\\.nuget\\packages\\",
         "outputPath": "C:\\Users\\doguk\\source\\repos\\bluetooth wpf test\\obj\\",
@@ -19,20 +19,20 @@
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
-          "net48"
+          "net472"
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
-          "net48": {
+          "net472": {
             "projectReferences": {}
           }
         }
       },
       "frameworks": {
-        "net48": {
+        "net472": {
           "dependencies": {
             "Microsoft.Windows.SDK.Contracts": {
               "target": "Package",

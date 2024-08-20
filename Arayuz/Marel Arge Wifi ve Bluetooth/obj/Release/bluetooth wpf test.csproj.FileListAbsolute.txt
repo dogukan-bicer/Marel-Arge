@@ -1,16 +1,16 @@
-C:\Users\doguk\source\repos\bluetooth wpf test\bin\Release\bluetooth wpf test.exe.config
-C:\Users\doguk\source\repos\bluetooth wpf test\bin\Release\bluetooth wpf test.exe
-C:\Users\doguk\source\repos\bluetooth wpf test\bin\Release\bluetooth wpf test.pdb
+C:\Users\doguk\source\repos\bluetooth wpf test\bin\Release\Marel Arge.exe.config
+C:\Users\doguk\source\repos\bluetooth wpf test\bin\Release\Marel Arge.exe
+C:\Users\doguk\source\repos\bluetooth wpf test\bin\Release\Marel Arge.pdb
 C:\Users\doguk\source\repos\bluetooth wpf test\obj\Release\bluetooth wpf test.csproj.AssemblyReference.cache
 C:\Users\doguk\source\repos\bluetooth wpf test\obj\Release\bluetooth wpf test.csproj.SuggestedBindingRedirects.cache
 C:\Users\doguk\source\repos\bluetooth wpf test\obj\Release\MainWindow.g.cs
 C:\Users\doguk\source\repos\bluetooth wpf test\obj\Release\App.g.cs
-C:\Users\doguk\source\repos\bluetooth wpf test\obj\Release\bluetooth wpf test_MarkupCompile.cache
-C:\Users\doguk\source\repos\bluetooth wpf test\obj\Release\bluetooth wpf test_MarkupCompile.lref
+C:\Users\doguk\source\repos\bluetooth wpf test\obj\Release\Marel Arge_MarkupCompile.cache
+C:\Users\doguk\source\repos\bluetooth wpf test\obj\Release\Marel Arge_MarkupCompile.lref
 C:\Users\doguk\source\repos\bluetooth wpf test\obj\Release\MainWindow.baml
-C:\Users\doguk\source\repos\bluetooth wpf test\obj\Release\bluetooth wpf test.g.resources
-C:\Users\doguk\source\repos\bluetooth wpf test\obj\Release\bluetooth_wpf_test.Properties.Resources.resources
+C:\Users\doguk\source\repos\bluetooth wpf test\obj\Release\Marel Arge.g.resources
+C:\Users\doguk\source\repos\bluetooth wpf test\obj\Release\marel_arge.Properties.Resources.resources
 C:\Users\doguk\source\repos\bluetooth wpf test\obj\Release\bluetooth wpf test.csproj.GenerateResource.cache
 C:\Users\doguk\source\repos\bluetooth wpf test\obj\Release\bluetooth wpf test.csproj.CoreCompileInputs.cache
-C:\Users\doguk\source\repos\bluetooth wpf test\obj\Release\bluetooth wpf test.exe
-C:\Users\doguk\source\repos\bluetooth wpf test\obj\Release\bluetooth wpf test.pdb
+C:\Users\doguk\source\repos\bluetooth wpf test\obj\Release\Marel Arge.exe
+C:\Users\doguk\source\repos\bluetooth wpf test\obj\Release\Marel Arge.pdb

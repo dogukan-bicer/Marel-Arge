@@ -13,7 +13,7 @@ using System.Windows.Threading;
 using System.Net.Sockets;
 using System.Net;
 
-namespace bluetooth_wpf_test
+namespace marel_arge
 {
     public partial class App : Application
     {
@@ -98,6 +98,15 @@ namespace bluetooth_wpf_test
         int robotik_el_port = 1233;
         int eldiven_port = 1235;
         string robotik_ip_adres = "192.168.1.33";
+
+
+
+        private void wifi_konfigurasyon_menu(object sender, RoutedEventArgs e)
+        {
+            wifi_konfigurasyon wifi_Konfigurasyon_sayfa = new wifi_konfigurasyon();
+            wifi_Konfigurasyon_sayfa.Show();
+        }
+
         string eldiven_ip_adres = "192.168.1.35";
 
         string targetSSID = "marel_arge";
@@ -146,7 +155,6 @@ namespace bluetooth_wpf_test
             }
         }
 
-
         private async void Sunucuya_baglan(object sender, RoutedEventArgs e)
         {
             this.Cursor = Cursors.Wait;
@@ -179,7 +187,23 @@ namespace bluetooth_wpf_test
                 if (!IsConnectedToSSID(targetSSID))
                 {
                     this.Cursor = null;
-                    MessageBox.Show($"Cihaz {targetSSID} WiFi ağına bağlı değil!", "Bağlantı Uyarısı", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    MessageBoxResult result = MessageBox.Show($"Cihaz {targetSSID} WiFi ağına bağlı değil!" +
+                        $" Bağlanmak ister misiniz?","Bağlantı Uyarısı",
+                        MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                    if (result == MessageBoxResult.Yes)
+                    {
+                        Cursor = Cursors.Wait;
+                        await Wifibaglan(targetSSID);
+                        await Task.Delay(6000);
+                        if (IsConnectedToSSID(targetSSID))
+                        {
+                            MessageBox.Show($"Bilgisayar {targetSSID} WiFi ağına bağlı!!");
+                        }else
+                        {
+                            MessageBox.Show($"Bilgisayar {targetSSID} WiFi ağına bağlı değil!!");
+                        }
+                        Cursor = null;
+                    }
                 }
                 else
                 {
@@ -202,7 +226,7 @@ namespace bluetooth_wpf_test
                         MessageBox.Show("Cihaz Bağlı Değil: " + ex.Message);
                     }
 
-                    await Task.Delay(500);
+                    await Task.Delay(1000);
 
                     if (eldiven_connect_status && robotik_connect_status)
                     {

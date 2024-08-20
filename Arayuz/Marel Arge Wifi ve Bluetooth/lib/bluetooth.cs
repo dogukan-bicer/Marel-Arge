@@ -10,7 +10,7 @@ using Windows.Devices.Bluetooth.Rfcomm;
 using Windows.Devices.Enumeration;
 using Windows.Networking.Sockets;
 
-namespace bluetooth_wpf_test
+namespace marel_arge
 {
     public partial class MainWindow : Window
     {

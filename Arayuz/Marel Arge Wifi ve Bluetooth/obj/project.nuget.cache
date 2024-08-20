@@ -1,10 +1,13 @@
 {
   "version": 2,
-  "dgSpecHash": "d/PdCjThh0aUFvGD1GdYAHLLZS9KGV+zQBYWs6njEVat7Ke5fp3mbxvuMgOO/jv6ly70hmthvfqGaeL//KbnhA==",
+  "dgSpecHash": "T7rogFrGnu2/Wlw1uKS2QrOvq225XIsiac0R4gjjRifCyDar52Ut5NhNq/iAMp7fyEJWEgd9Z2lebSI9Wfj/fw==",
   "success": true,
-  "projectFilePath": "C:\\Users\\doguk\\source\\repos\\bluetooth wpf test\\bluetooth wpf test.csproj",
+  "projectFilePath": "C:\\Users\\doguk\\source\\repos\\marel arge_\\marel arge.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\doguk\\.nuget\\packages\\microsoft.windows.sdk.contracts\\10.0.19041.1\\microsoft.windows.sdk.contracts.10.0.19041.1.nupkg.sha512",
+    "C:\\Users\\doguk\\.nuget\\packages\\system.codedom\\8.0.0\\system.codedom.8.0.0.nupkg.sha512",
+    "C:\\Users\\doguk\\.nuget\\packages\\system.io.ports\\8.0.0\\system.io.ports.8.0.0.nupkg.sha512",
+    "C:\\Users\\doguk\\.nuget\\packages\\system.management\\8.0.0\\system.management.8.0.0.nupkg.sha512",
     "C:\\Users\\doguk\\.nuget\\packages\\system.runtime.windowsruntime\\4.6.0\\system.runtime.windowsruntime.4.6.0.nupkg.sha512",
     "C:\\Users\\doguk\\.nuget\\packages\\system.runtime.windowsruntime.ui.xaml\\4.6.0\\system.runtime.windowsruntime.ui.xaml.4.6.0.nupkg.sha512"
   ],

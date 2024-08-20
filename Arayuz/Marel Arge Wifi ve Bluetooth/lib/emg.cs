@@ -10,7 +10,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using Windows.Networking.NetworkOperators;
 
-namespace bluetooth_wpf_test
+namespace marel_arge
 { 
     public partial class MainWindow : Window
     {

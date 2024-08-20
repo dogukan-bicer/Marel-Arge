@@ -1,9 +1,9 @@
-﻿<Window x:Class="bluetooth_wpf_test.MainWindow"
+﻿<Window x:Class="marel_arge.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:bluetooth_wpf_test"
+        xmlns:local="clr-namespace:marel_arge"
         mc:Ignorable="d"
         Title="Ana Ekran" Height="688" Width="920">
     <Grid Margin="0,0,0,20">
@@ -32,7 +32,7 @@
         <Label Content="orta parmak" HorizontalAlignment="Left" Height="30" Margin="398,372,0,0" VerticalAlignment="Top" Width="108" Grid.Column="2"/>
         <Label Content="yüzük parmağı" HorizontalAlignment="Left" Height="30" Margin="398,414,0,0" VerticalAlignment="Top" Width="108" Grid.Column="2"/>
         <Label Content="işaret parmağı" HorizontalAlignment="Left" Height="30" Margin="398,323,0,0" VerticalAlignment="Top" Width="108" Grid.Column="2"/>
-        <Button Content="Tümünü Ayarla"  HorizontalAlignment="Left" Height="34" Margin="404,174,0,0" VerticalAlignment="Top" Width="97" Click="Tum_pwm_ayarla" x:Name="Tum_pwm" Grid.Column="2"/>
+        <Button Content="Tümünü Ayarla"  HorizontalAlignment="Left" Height="34" Margin="385,174,0,0" VerticalAlignment="Top" Width="116" Click="Tum_pwm_ayarla" x:Name="Tum_pwm" Grid.Column="2"/>
         <Label Name="bas_parmak_label" Grid.Column="2" Content="0" HorizontalAlignment="Left" Margin="540,275,0,0" VerticalAlignment="Top"/>
         <Label x:Name="isaret_parmak_label" Grid.Column="2" Content="0" HorizontalAlignment="Left" Margin="540,325,0,0" VerticalAlignment="Top"/>
         <Label x:Name="orta_parmak_label" Grid.Column="2" Content="0" HorizontalAlignment="Left" Margin="540,374,0,0" VerticalAlignment="Top"/>
@@ -56,23 +56,26 @@
         <Label x:Name="y_eksen_label" Grid.Column="2" Content="0" HorizontalAlignment="Left" Margin="471,571,0,0" VerticalAlignment="Top" Width="49"/>
         <Label x:Name="z_eksen_label" Grid.Column="2" Content="0" HorizontalAlignment="Left" Margin="549,571,0,0" VerticalAlignment="Top" Width="49"/>
         <Label x:Name="pil_seviyesi_label" Grid.Column="2" Content="0" HorizontalAlignment="Left" Margin="617,571,0,0" VerticalAlignment="Top" Width="49"/>
-        <Label  Grid.Column="2" Content="Emg Verisi 1" Margin="648,236,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Width="88"/>
+        <Label  Grid.Column="2" Content="Emg Verisi 1" Margin="648,250,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Width="88"/>
         <Button  Content="Tekrarla"  HorizontalAlignment="Left" Height="34" Margin="404,223,0,0" VerticalAlignment="Top" Width="97" Click="el_acma_kapama" x:Name="el_tekrar_buton" Grid.Column="2"/>
         <Label  x:Name="emg_data_label" Grid.Column="2" Content="0" HorizontalAlignment="Left" Margin="672,275,0,0" VerticalAlignment="Top" Width="79"/>
         <Button Content="eldiven Ayarla"  HorizontalAlignment="Left" Height="34" Margin="637,479,0,0" VerticalAlignment="Top" Width="111" Click="eldiven_ayarla_1" x:Name="eldiven_ayarla" Grid.Column="2"/>
         <TextBox x:Name="tekrar_sayisi_textbox" Grid.Column="2" HorizontalAlignment="Left" Margin="540,231,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="70"/>
-        <Button Content="Emg Kalibrasyon"  HorizontalAlignment="Left" Height="37" Margin="404,16,0,0" VerticalAlignment="Top" Width="97" Click="emg_kaydet" x:Name="emg_kayit" Grid.Column="2"/>
+        <Button Content="Emg Kalibrasyon"  HorizontalAlignment="Left" Height="37" Margin="385,16,0,0" VerticalAlignment="Top" Width="116" Click="emg_kaydet" x:Name="emg_kayit" Grid.Column="2"/>
         <Label  Grid.Column="2" Content="Emg Verisi 2" Margin="652,348,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Width="82"/>
         <Label  x:Name="emg_data_2_label" Grid.Column="2" Content="0" HorizontalAlignment="Left" Margin="672,375,0,0" VerticalAlignment="Top" Width="79"/>
         <Label Grid.Column="2" Content="Hareket bekleniyor..." HorizontalAlignment="Left" Name="emg_hareket_label" Margin="634,308,0,0" VerticalAlignment="Top"/>
         <Label Grid.Column="2" Content="Hareket bekleniyor..." HorizontalAlignment="Left" Name="emg2_hareket_label" Margin="634,412,0,0" VerticalAlignment="Top"/>
-        <TextBox x:Name="Emg_esik_textbox" Grid.Column="2" HorizontalAlignment="Left" Margin="648,197,0,0" TextWrapping="Wrap" Text="300" VerticalAlignment="Top" Width="70" TextChanged="Emg_esik_textbox_TextChanged"/>
+        <TextBox x:Name="Emg_esik_textbox" Grid.Column="2" HorizontalAlignment="Left" Margin="651,217,0,0" TextWrapping="Wrap" Text="300" VerticalAlignment="Top" Width="70" TextChanged="Emg_esik_textbox_TextChanged"/>
         <Button x:Name="emg_kayit_buton" Content="emg kayit"  HorizontalAlignment="Left" Height="29" Margin="540,179,0,0" VerticalAlignment="Top" Width="61" Click="esik_ayar"  Grid.Column="2"/>
         <Label  x:Name="last_emg_data_label" Grid.Column="2" Content="0" HorizontalAlignment="Left" Margin="597,275,0,0" VerticalAlignment="Top" Width="56"/>
         <Label  x:Name="last_emg_data2_label" Grid.Column="2" Content="0" HorizontalAlignment="Left" Margin="599,374,0,0" VerticalAlignment="Top" Width="54"/>
         <Label Content="Bağlanti modu:" HorizontalAlignment="Left" Height="38" Margin="22,120,0,0" VerticalAlignment="Top" Width="166" Grid.Column="1" Grid.ColumnSpan="2"/>
         <CheckBox x:Name ="bluetooth_checkbox"  Grid.Column="2" Content="Bluetooth" HorizontalAlignment="Left" Margin="113,124,0,0" VerticalAlignment="Top" Width="118" IsChecked="True" Click="Bluetooth_checkbox_Click" />
         <CheckBox x:Name ="wifi_checkbox"  Grid.Column="2" Content="Wifi" HorizontalAlignment="Left" Margin="255,124,0,0" VerticalAlignment="Top" Width="118" IsChecked="False" Click="wifi_checkbox_Click"  />
+        <Label  Grid.Column="2" Content="Hareket Hassasiyeti" Margin="635,184,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Width="116"/>
+        <Button  Content="Tekrarla"  HorizontalAlignment="Left" Height="34" Margin="385,223,0,0" VerticalAlignment="Top" Width="116" Click="el_acma_kapama" x:Name="el_tekrar_buton_Copy" Grid.Column="2"/>
+        <Button  Content="Wi-Fi Konfigürasyon"  HorizontalAlignment="Left" Height="34" Margin="385,119,0,0" VerticalAlignment="Top" Width="116" Click="wifi_konfigurasyon_menu" x:Name="el_tekrar_buton_Copy1" Grid.Column="2"/>
 
 
 

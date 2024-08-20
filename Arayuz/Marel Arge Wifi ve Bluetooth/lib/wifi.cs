@@ -17,13 +17,11 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Timers;
 using System.Windows.Threading;
-
-
 using System.Net.NetworkInformation;
 using System.Diagnostics;
 using System.IO;
 
-namespace bluetooth_wpf_test
+namespace marel_arge
 {
     public partial class MainWindow : Window
     {
@@ -66,6 +64,42 @@ namespace bluetooth_wpf_test
             }
             else if (robotik.IsChecked == false) { robotik_connect_status = false; }
         }
+
+        public async Task Wifibaglan(string ssid)
+        {
+            try
+            {
+                // netsh wlan connect komutunu kullanarak Wi-Fi ağına bağlan
+                string command = $"netsh wlan connect name=\"{ssid}\"";
+                Process process = new Process
+                {
+                    StartInfo = new ProcessStartInfo
+                    {
+                        FileName = "cmd.exe",
+                        Arguments = $"/C {command}",
+                        RedirectStandardOutput = true,
+                        UseShellExecute = false,
+                        CreateNoWindow = true
+                    }
+                };
+
+                process.Start();
+
+                // Process'in bitmesini bekle
+                await Task.Run(() => process.WaitForExit());
+
+                string output = process.StandardOutput.ReadToEnd();
+
+                // Bağlantı sonucu çıktısını göster
+                Console.WriteLine(output);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+            }
+        }
+
+
 
         void eldiven_udp_baglan()
         {
