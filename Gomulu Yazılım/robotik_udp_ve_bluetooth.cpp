@@ -211,8 +211,7 @@ void robotik_bluetooth_handler(void *parameter) {
     new_time = millis();
     //pinde değişim var ise esp yi sıfırla
     if (new_time - old_time > 700) {
-      toggle = !toggle;
-      digitalWrite(mavi_led, toggle);
+      digitalWrite(mavi_led, HIGH);
       //pinde değişim var ise esp yi sıfırla
       if (touchRead(wifi_or_bluetooth_pin) > dokunma_esigi) {
         Serial.println("UDP ye geçiyor..");
@@ -294,8 +293,7 @@ void robotik_wifi_handler(void *parameter) {
   for (;;) {
     new_time = millis();
     if (new_time - old_time > 700) {
-      toggle = !toggle;
-      digitalWrite(kirmizi_led, toggle);
+      digitalWrite(kirmizi_led, HIGH);
           //pinde değişim var ise esp yi sıfırla
       if (touchRead(wifi_or_bluetooth_pin) < dokunma_esigi) {
           Serial.println("Bluetoota geçiyor..");
