@@ -185,23 +185,25 @@ void loop() {
 }
 
 void emg_gonder_bluetooth_handler(void *parameter) {
+  char buffer[18];  // Yeterince büyük bir buffer ayırın
   for (;;) {
     emg_analog = ads.readADC_Differential_0_1();
     emg_analog2 = ads.readADC_Differential_2_3();
-    String test_Str = "Em=" + String(emg_analog) + ">" + String(emg_analog2);
-    SerialBT.println(test_Str);
+    // String yerine sabit karakter dizisi kullanarak veriyi formatlayın
+    snprintf(buffer, sizeof(buffer), "Em=%d>%d", emg_analog, emg_analog2);
+    SerialBT.println(buffer);
   }
 }
-
 void emg_gonder_wifi_handler(void *parameter) {
+  char buffer[18];  // Yeterince büyük bir buffer ayırın
   for (;;) {
     emg_analog = ads.readADC_Differential_0_1();
     emg_analog2 = ads.readADC_Differential_2_3();
-    String test_Str = "Em=" + String(emg_analog) + ">" + String(emg_analog2);
+    snprintf(buffer, sizeof(buffer), "Em=%d>%d", emg_analog, emg_analog2);
     IPAddress remoteIp = udp.remoteIP();
     int remotePort = udp.remotePort();
     udp.beginPacket(remoteIp, remotePort);
-    udp.println(test_Str);
+    udp.println(buffer);
     udp.endPacket();
   }
 }
