@@ -115,10 +115,12 @@ namespace marel_arge
                 // Veriyi sunucuya gönderin
                 client_eldiven.Send(data, data.Length);
                 // sonraki veri alımını başlat
+
+
                 client_eldiven.BeginReceive(new AsyncCallback(udp_ReceiveCallback_Eldiven), null);
 
             }
-            else if (eldiven.IsChecked == false) { eldiven_connect_status = false; }
+            else if (eldiven.IsChecked == false) { udp_eldiven_connect_status = false; }
         }
 
         private static byte[] HexStringToByteArray(string hexString)
@@ -145,153 +147,71 @@ namespace marel_arge
 
         private void udp_ReceiveCallback_Eldiven(IAsyncResult ar)
         {
-            connect_status = true;
             try
             {
-                // veri alınır
+                isudpconnected_eldiven = true;
+                connect_status = true;
                 eldiven_receiveddata = client_eldiven.EndReceive(ar, ref endPoint_eldiven);
-                if (eldiven_receiveddata != null)
+                // veriyi stringe dönüştürür
+                eldiven_receivedMessage = Encoding.UTF8.GetString(eldiven_receiveddata);
+                // gelen mesajı uı thread'inde güncelle
+
+                string split_message = (eldiven_receivedMessage.Split('=')[0]);
+                if (split_message == "El")
                 {
-                    // veriyi stringe dönüştürür
-                    eldiven_receivedMessage = Encoding.UTF8.GetString(eldiven_receiveddata);
-                    // gelen mesajı uı thread'inde güncelle
-                    Dispatcher.Invoke(() =>
-                    {
-                        string split_message = (eldiven_receivedMessage.Split('=')[0]);
-                        if (split_message == "El")
-                        {
-                            eldiven_connect_status = true;
-                            this.Cursor = null;
-                            // "=" karakterinden sonraki kısmı al
-                            int index = eldiven_receivedMessage.IndexOf('=') + 1;
-                            string sensorValuesString = eldiven_receivedMessage.Substring(index);
-                            // "_" karakterinden bölerek ekseni ve batarya değerlerini elde et
-                            string[] sensorValues = sensorValuesString.Split('_');
-                            x_eksen = Convert.ToInt32(sensorValues[5]);
-                            y_eksen = Convert.ToInt32(sensorValues[6]);
-                            z_eksen = Convert.ToInt32(sensorValues[7]);
-                            batarya = Convert.ToInt32(sensorValues[8]);
-                            // Flex sensör değerlerini ayır
-                            flex_sensor_2 = Convert.ToInt32(sensorValues[0]);
-                            flex_sensor_5 = Convert.ToInt32(sensorValues[1]);
-                            flex_sensor_3 = Convert.ToInt32(sensorValues[2]);
-                            flex_sensor_4 = Convert.ToInt32(sensorValues[3]);
-                            flex_sensor_1 = Convert.ToInt32(sensorValues[4]);
-                            flex_sensor_1_label.Content = flex_sensor_2;
-                            flex_sensor_2_label.Content = flex_sensor_5;
-                            flex_sensor_3_label.Content = flex_sensor_3;
-                            flex_sensor_4_label.Content = flex_sensor_4;
-                            flex_sensor_5_label.Content = flex_sensor_1;
-                            x_eksen_label.Content = x_eksen;
-                            y_eksen_label.Content = y_eksen;
-                            z_eksen_label.Content = z_eksen;
-                            pil_seviyesi_label.Content = batarya;
-                        }
-                        client_eldiven.BeginReceive(new AsyncCallback(udp_ReceiveCallback_Eldiven), null);
-                    });
+                    udp_eldiven_connect_status = true;
+
+                    // "=" karakterinden sonraki kısmı al
+                    int index = eldiven_receivedMessage.IndexOf('=') + 1;
+                    string sensorValuesString = eldiven_receivedMessage.Substring(index);
+                    // "_" karakterinden bölerek ekseni ve batarya değerlerini elde et
+                    string[] sensorValues = sensorValuesString.Split('_');
+                    x_eksen = Convert.ToInt32(sensorValues[5]);
+                    y_eksen = Convert.ToInt32(sensorValues[6]);
+                    z_eksen = Convert.ToInt32(sensorValues[7]);
+                    batarya = Convert.ToInt32(sensorValues[8]);
+                    // Flex sensör değerlerini ayır
+                    flex_sensor_2 = Convert.ToInt32(sensorValues[0]);
+                    flex_sensor_5 = Convert.ToInt32(sensorValues[1]);
+                    flex_sensor_3 = Convert.ToInt32(sensorValues[2]);
+                    flex_sensor_4 = Convert.ToInt32(sensorValues[3]);
+                    flex_sensor_1 = Convert.ToInt32(sensorValues[4]);
+
+                    update_eldiven_ui();
+
+                    lastDataReceivedTime_udp_eldiven = DateTime.Now;
+
                 }
+                client_eldiven.BeginReceive(new AsyncCallback(udp_ReceiveCallback_Eldiven), null);
             }
-            catch (Exception)
-            {
-                //  veri_alma_hatası();
-                //  eldiven_connect_status = false;
-            }
+            catch { }
+            
         }
 
         private void udp_ReceiveCallback_Robotik(IAsyncResult ar)
         {
-            connect_status = true;
-            try
-            {
-                // veri alınır
+            try {
+                isudpconnected_robotik = true;
+                connect_status = true;
+
                 robotik_receiveddata = client_robotik.EndReceive(ar, ref endPoint_robotik);
-                // veri alınır
-                if (robotik_receiveddata != null)
+                lastDataReceivedTime_udp_robotik = DateTime.Now;
+
+                receivedMessage = Encoding.UTF8.GetString(robotik_receiveddata);
+
+                if (receivedMessage.StartsWith("Em="))
                 {
-                    // veriyi stringe dönüştürür
-                    receivedMessage = Encoding.UTF8.GetString(robotik_receiveddata);
-                    // gelen mesajı uı thread'inde güncelle
-                    Dispatcher.Invoke(() =>
-                    {
-                        string split_message = (receivedMessage.Split('=')[0]);
-                        if (split_message == "Ro")
-                        {
-                            robotik_connect_status = true;
-                            connect_status = true;
-                            // "=" karakterinden sonraki kısmı al
-                            int index = receivedMessage.IndexOf('=') + 1;
-                            string parmaklarString = receivedMessage.Substring(index);
-                            // "_" karakterinden bölerek parmak değerlerini elde et
-                            string[] parmaklar = parmaklarString.Split('_');
-                            bas_parmak = Convert.ToInt32(parmaklar[0]);
-                            isaret_parmak = Convert.ToInt32(parmaklar[1]);
-                            orta_parmak = Convert.ToInt32(parmaklar[2]);
-                            yuzuk_parmak = Convert.ToInt32(parmaklar[3]);
-                            serce_parmak = Convert.ToInt32(parmaklar[4]);
-                            bas_parmak_label.Content = bas_parmak.ToString();
-                            isaret_parmak_label.Content = isaret_parmak.ToString();
-                            orta_parmak_label.Content = orta_parmak.ToString();
-                            yuzuk_parmak_label.Content = yuzuk_parmak.ToString();
-                            serce_parmak_label.Content = serce_parmak.ToString();
-                            // sonraki veri alımını başlat
-                        }
-                        if (split_message == "Em")
-                        {
-                            int index = receivedMessage.IndexOf('=') + 1;
-                            string emgString = receivedMessage.Substring(index);
-                            string[] emgverisi = emgString.Split('>');
-                            emg_data = Convert.ToInt32(emgverisi[0]);
-                            emg_data2 = Convert.ToInt32(emgverisi[1]);
-                            emg_data_label.Content = emg_data.ToString();
-                            emg_data_2_label.Content = emg_data2.ToString();
-
-                            if (emg_record)
-                            {
-                                string filePath = "emg_data.txt";
-                                using (StreamWriter writer = new StreamWriter(filePath))
-                                {
-                                    if (emg_count < emg_rec_sample)
-                                    {
-                                        emgrecdata.Add(emg_data);
-                                        emgrecdata2.Add(emg_data2);
-                                        emg_count++;
-                                    }
-                                    else
-                                    {
-                                        for (int i = 0; i < emg_rec_sample; i++)
-                                        {
-                                            writer.WriteLine($"{emgrecdata[i]},{emgrecdata2[i]}");
-                                        }
-                                        this.Cursor = null;
-                                        emg_record = false;
-                                        emg_count = 0;
-                                        emgrecdata.Clear();
-                                        emgrecdata2.Clear();
-                                        emg_kayit_buton.IsEnabled = true;
-                                        // Dosyayı aç
-                                        try
-                                        {
-                                            System.Diagnostics.Process.Start("notepad.exe", filePath);
-                                        }
-                                        catch (Exception ex)
-                                        {
-                                            MessageBox.Show($"Dosya açılamadı: {ex.Message}");
-                                        }
-                                    }
-                                }
-                            }
-
-                            udp_emg_calculate();
-                        }
-                        client_robotik.BeginReceive(new AsyncCallback(udp_ReceiveCallback_Robotik), null);
-                    });
+                    // EMG verilerini işleme işlemi önceliklidir
+                    ProcessEmgData_udp(receivedMessage);
                 }
+                else if (receivedMessage.StartsWith("Ro="))
+                {
+                    ProcessRobotikData(receivedMessage);
+                }
+
+                client_robotik.BeginReceive(new AsyncCallback(udp_ReceiveCallback_Robotik), null);
             }
-            catch
-            {
-                // veri_alma_hatası();
-                // robotik_connect_status = false;
-            }
+            catch { }
         }
     }
 }

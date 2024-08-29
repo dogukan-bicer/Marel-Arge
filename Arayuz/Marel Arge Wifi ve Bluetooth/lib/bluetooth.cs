@@ -24,7 +24,10 @@ namespace marel_arge
         private Stream bluetoothStream_robotik_read;
 
         private Stream bluetoothStream_eldiven_read;
+        private Stream bluetoothStream_eldiven_write;
 
+        byte[] bluetooth_buffer = new byte[1000000];// okumayı hızlandırmak için büyük buffer ayır
+        int bytesRead_bluetooth = 0;
         async Task bluetooth_robotik_baglan()
         {
             var deviceInfo_robotik = await FindBluetoothDeviceAsync("Marel Robotik");
@@ -44,16 +47,15 @@ namespace marel_arge
 
                     isBluetoothConnected_robotik = true;
                     connect_status = true;
-                    pwm_Ayari.IsEnabled = true;
-                    Tum_pwm.IsEnabled = true;
-                    el_tekrar_buton.IsEnabled = true;
-                    eldiven_ayarla.IsEnabled = true;
-                    emg_kayit_buton.IsEnabled = true;
-                    this.Cursor = null;
 
-                    bluetooth_baglanti_kontrol();
+                    robotik_connected_ui();
 
-                    await Bluetooth_ReceiveCallback_Robotik();
+                    bluetooth_baglanti_kontrol_ui();
+
+                    //bluetoothStream_robotik_read.BeginRead(buffer_bluetooth, 0, buffer_bluetooth.Length, BluetoothReadCallback, buffer_bluetooth);
+
+                    await BluetoothReadCallback();
+
                 }
                 else
                 {
@@ -66,23 +68,83 @@ namespace marel_arge
             }
         }
 
-        void bluetooth_baglanti_kontrol()
+
+            
+        private async Task BluetoothReadCallback()
         {
-            if (isBluetoothConnected_eldiven && isBluetoothConnected_robotik)
+            while (isBluetoothConnected_robotik)
             {
-                sunucu_durum.Content = "Robotik ve Eldiven Bağlandı";
+                bytesRead_bluetooth = await bluetoothStream_robotik_read.ReadAsync(bluetooth_buffer, 0, bluetooth_buffer.Length);
+                receivedMessage = Encoding.UTF8.GetString(bluetooth_buffer, 0, bytesRead_bluetooth);
+                if (receivedMessage.StartsWith("Em="))
+                {
+                    // EMG verilerini işleme işlemi önceliklidir
+                    await ProcessEmgData_bluetooth(receivedMessage);
+
+                }
+                else if (receivedMessage.StartsWith("Ro="))
+                {
+                    ProcessRobotikData(receivedMessage);
+                }
+                lastDataReceivedTime_bluetooth_robotik = DateTime.Now;
+            }
+
+        }
+
+        private void ProcessRobotikData(string message)
+        {
+            robotik_connect_status = true;
+            
+
+            int index = message.IndexOf('=') + 1;
+            string parmaklarString = message.Substring(index);
+            string[] parmaklar = parmaklarString.Split('_');
+
+            bas_parmak = Convert.ToInt32(parmaklar[0]);
+            isaret_parmak = Convert.ToInt32(parmaklar[1]);
+            orta_parmak = Convert.ToInt32(parmaklar[2]);
+            yuzuk_parmak = Convert.ToInt32(parmaklar[3]);
+            serce_parmak = Convert.ToInt32(parmaklar[4]);
+
+            UpdateParmakUI(parmaklar[0], parmaklar[1], parmaklar[2], parmaklar[3], parmaklar[4]);
+            
+        }
+
+
+
+        private void UpdateParmakUI(string bas_parmak, string isaret_parmak, string orta_parmak, string yuzuk_parmak, string serce_parmak)
+        {
+            Dispatcher.BeginInvoke(new Action(() =>
+            {
+                bas_parmak_label.Content = bas_parmak;
+                isaret_parmak_label.Content = isaret_parmak;
+                orta_parmak_label.Content = orta_parmak;
+                yuzuk_parmak_label.Content = yuzuk_parmak;
+                serce_parmak_label.Content = serce_parmak;
+            }));
+        }
+
+        void bluetooth_baglanti_kontrol_ui()
+        {
+            Dispatcher.BeginInvoke(new Action(() =>
+            {
+                if (isBluetoothConnected_eldiven && isBluetoothConnected_robotik)
+            {
+                sunucu_durum.Content = "Bluetooth Robotik ve Eldiven Bağlandı";
                 sunucu_durum.Foreground = Brushes.Green;
             }
             else if (isBluetoothConnected_robotik)
             {
-                sunucu_durum.Content = "Robotik Bağlandı";
+                sunucu_durum.Content = "Bluetooth Robotik Bağlandı";
                 sunucu_durum.Foreground = Brushes.Green;
             }
             else if (isBluetoothConnected_eldiven)
             {
-                sunucu_durum.Content = "Eldiven Bağlandı";
+                sunucu_durum.Content = "Bluetooth Eldiven Bağlandı";
                 sunucu_durum.Foreground = Brushes.Green;
             }
+                this.Cursor = null;
+            }));
         }
 
         async Task bluetooth_eldiven_baglan()
@@ -99,14 +161,16 @@ namespace marel_arge
                     await bluetoothSocket_eldiven.ConnectAsync(rfcommService_eldiven.ConnectionHostName, rfcommService_eldiven.ConnectionServiceName);
 
                     bluetoothStream_eldiven_read= bluetoothSocket_eldiven.InputStream.AsStreamForRead();
+                    bluetoothStream_eldiven_write= bluetoothSocket_eldiven.OutputStream.AsStreamForWrite();
 
                     isBluetoothConnected_eldiven = true;
                     connect_status = true;
-                    this.Cursor = null;
+                    
 
-                    bluetooth_baglanti_kontrol();
+                    bluetooth_baglanti_kontrol_ui();
 
-                    await Bluetooth_ReceiveCallback_Eldiven();
+                   await Bluetooth_ReceiveCallback_Eldiven();
+
                 }
                 else
                 {
@@ -144,13 +208,19 @@ namespace marel_arge
 
         private async Task Bluetooth_SendDataAsync(string dataStr)
         {
-            if (!isBluetoothConnected_robotik) return;
-
             byte[] data = Encoding.ASCII.GetBytes(dataStr);
             try
             {
-                await bluetoothStream_robotik_write.WriteAsync(data, 0, data.Length);
-                bluetoothStream_robotik_write.Flush();
+                if (isBluetoothConnected_robotik)
+                {
+                    await bluetoothStream_robotik_write.WriteAsync(data, 0, data.Length);
+                    bluetoothStream_robotik_write.Flush();
+                }
+                else if (isBluetoothConnected_eldiven)
+                {
+                    await bluetoothStream_eldiven_write.WriteAsync(data, 0, data.Length);
+                    bluetoothStream_eldiven_write.Flush();
+                }
             }
             catch (Exception ex)
             {
@@ -158,6 +228,71 @@ namespace marel_arge
             }
         }
 
+        private void Bluetooth_SendData(string dataStr)
+        {
+            byte[] data = Encoding.ASCII.GetBytes(dataStr);
+            try
+            {
+                if (isBluetoothConnected_robotik)
+                {
+                    bluetoothStream_robotik_write.Write(data, 0, data.Length);
+                }
+                else if (isBluetoothConnected_eldiven)
+                {
+                    bluetoothStream_eldiven_write.Write(data, 0, data.Length);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Veri gönderme hatası: " + ex.Message);
+            }
+        }
+
+        void update_eldiven_ui()
+        {
+            Dispatcher.BeginInvoke(new Action(() =>
+            {
+
+                flex_sensor_1_label.Content = flex_sensor_2;
+                flex_sensor_2_label.Content = flex_sensor_5;
+                flex_sensor_3_label.Content = flex_sensor_3;
+                flex_sensor_4_label.Content = flex_sensor_4;
+                flex_sensor_5_label.Content = flex_sensor_1;
+
+                x_eksen_label.Content = x_eksen;
+                y_eksen_label.Content = y_eksen;
+                z_eksen_label.Content = z_eksen;
+                pil_seviyesi_label.Content = batarya;
+
+                flex_sensor_1_label.Foreground = flex_sensor_2 > 1800 ? Brushes.Green : Brushes.White;
+                flex_sensor_2_label.Foreground = flex_sensor_5 > 1800 ? Brushes.Green : Brushes.White;
+                flex_sensor_3_label.Foreground = flex_sensor_3 > 1800 ? Brushes.Green : Brushes.White;
+                flex_sensor_4_label.Foreground = flex_sensor_4 > 1800 ? Brushes.Green : Brushes.White;
+                flex_sensor_5_label.Foreground = flex_sensor_1 > 1800 ? Brushes.Green : Brushes.White;
+
+            }));
+        }
+
+        void disconnect_robotik_ui()
+        {
+            Dispatcher.BeginInvoke(new Action(() =>
+            {
+                pwm_Ayari.IsEnabled = false;
+                Tum_pwm.IsEnabled = false;
+                el_tekrar_buton.IsEnabled = false;
+                eldiven_ayarla.IsEnabled = false;
+                emg_kayit_buton.IsEnabled = false;
+            }));
+        }
+
+        public async void bluetooth_wifi_config(string wifiConfig)
+        {
+            if (isBluetoothConnected_eldiven)
+            {
+                await Bluetooth_SendDataAsync(wifiConfig);
+            }else
+            { MessageBox.Show("Eldiven Bluetooth olarak bağlı değil!!!"); }
+        }
         private async Task Bluetooth_ReceiveCallback_Eldiven()
         {
             byte[] buffer = new byte[1024];
@@ -172,7 +307,9 @@ namespace marel_arge
                         string split_message = eldiven_receivedMessage.Split('=')[0];
                         if (split_message == "El")
                         {
-                            eldiven_connect_status = true;
+                            udp_eldiven_connect_status = true;
+
+                            lastDataReceivedTime_bluetooth_eldiven = DateTime.Now;
 
                             int index = eldiven_receivedMessage.IndexOf('=') + 1;
                             string sensorValuesString = eldiven_receivedMessage.Substring(index);
@@ -189,22 +326,7 @@ namespace marel_arge
                             flex_sensor_4 = Convert.ToInt32(sensorValues[3]);
                             flex_sensor_1 = Convert.ToInt32(sensorValues[4]);
 
-                            flex_sensor_1_label.Content = flex_sensor_2;
-                            flex_sensor_2_label.Content = flex_sensor_5;
-                            flex_sensor_3_label.Content = flex_sensor_3;
-                            flex_sensor_4_label.Content = flex_sensor_4;
-                            flex_sensor_5_label.Content = flex_sensor_1;
-
-                            x_eksen_label.Content = x_eksen;
-                            y_eksen_label.Content = y_eksen;
-                            z_eksen_label.Content = z_eksen;
-                            pil_seviyesi_label.Content = batarya;
-
-                            flex_sensor_1_label.Foreground = flex_sensor_2 > 1800 ? Brushes.Green : Brushes.Black;
-                            flex_sensor_2_label.Foreground = flex_sensor_5 > 1800 ? Brushes.Green : Brushes.Black;
-                            flex_sensor_3_label.Foreground = flex_sensor_3 > 1800 ? Brushes.Green : Brushes.Black;
-                            flex_sensor_4_label.Foreground = flex_sensor_4 > 1800 ? Brushes.Green : Brushes.Black;
-                            flex_sensor_5_label.Foreground = flex_sensor_1 > 1800 ? Brushes.Green : Brushes.Black;
+                            update_eldiven_ui();
                         }
                     }
                 }
@@ -215,99 +337,5 @@ namespace marel_arge
             }
         }
 
-        private async Task Bluetooth_ReceiveCallback_Robotik()
-        {
-            byte[] buffer = new byte[1024];
-            while (isBluetoothConnected_robotik)
-            {
-                try
-                {
-                    int bytesRead = await bluetoothStream_robotik_read.ReadAsync(buffer, 0, buffer.Length);
-                    if (bytesRead > 0)
-                    {
-                        receivedMessage = Encoding.UTF8.GetString(buffer, 0, bytesRead);
-                        
-                        string split_message = receivedMessage.Split('=')[0];
-
-                        if (split_message == "Ro")
-                        {
-                            robotik_connect_status = true;
-
-                            int index = receivedMessage.IndexOf('=') + 1;
-                            string parmaklarString = receivedMessage.Substring(index);
-                            string[] parmaklar = parmaklarString.Split('_');
-
-                            bas_parmak = Convert.ToInt32(parmaklar[0]);
-                            isaret_parmak = Convert.ToInt32(parmaklar[1]);
-                            orta_parmak = Convert.ToInt32(parmaklar[2]);
-                            yuzuk_parmak = Convert.ToInt32(parmaklar[3]);
-                            serce_parmak = Convert.ToInt32(parmaklar[4]);
-
-
-                            bas_parmak_label.Content = bas_parmak.ToString();
-                            isaret_parmak_label.Content = isaret_parmak.ToString();
-                            orta_parmak_label.Content = orta_parmak.ToString();
-                            yuzuk_parmak_label.Content = yuzuk_parmak.ToString();
-                            serce_parmak_label.Content = serce_parmak.ToString();
-
-                        }
-                        if (split_message == "Em")
-                        {
-                            int index = receivedMessage.IndexOf('=') + 1;
-                            string emgString = receivedMessage.Substring(index);
-                            string[] emgverisi = emgString.Split('>');
-
-                            emg_data = Convert.ToInt32(emgverisi[0]);
-                            emg_data2 = Convert.ToInt32(emgverisi[1]);
-
-                            emg_data_label.Content = emg_data.ToString();
-                            emg_data_2_label.Content = emg_data2.ToString();
-
-                            if (emg_record)
-                            {
-                                string filePath = "emg_data.txt";
-                                using (StreamWriter writer = new StreamWriter(filePath))
-                                {
-                                    if (emg_count < emg_rec_sample)
-                                    {
-                                        emgrecdata.Add(emg_data);
-                                        emgrecdata2.Add(emg_data2);
-                                        emg_count++;
-                                    }
-                                    else
-                                    {
-                                        for (int i = 0; i < emg_rec_sample; i++)
-                                        {
-                                            writer.WriteLine($"{emgrecdata[i]},{emgrecdata2[i]}");
-                                        }
-                                        this.Cursor = null;
-                                        emg_record = false;
-                                        emg_count = 0;
-                                        emgrecdata.Clear();
-                                        emgrecdata2.Clear();
-                                        emg_kayit_buton.IsEnabled = true;
-                                        // Dosyayı aç
-                                        try
-                                        {
-                                            System.Diagnostics.Process.Start("notepad.exe", filePath);
-                                        }
-                                        catch (Exception ex)
-                                        {
-                                            MessageBox.Show($"Dosya açılamadı: {ex.Message}");
-                                        }
-                                    }
-                                }
-                            }
-
-                            await emg_calculate();
-                        }
-                    }
-                }
-                catch (Exception)
-                {
-                    // Handle the exception as needed
-                }
-            }
-        }
     }
 }

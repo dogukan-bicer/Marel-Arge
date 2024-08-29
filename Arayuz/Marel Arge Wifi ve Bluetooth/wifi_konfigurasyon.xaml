@@ -5,20 +5,42 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:marel_arge"
         mc:Ignorable="d"
-        Title="wifi_konfigurasyon" Height="446" Width="391" Loaded="Window_Loaded">
+        WindowStartupLocation="CenterScreen"
+        Title="wifi_konfigurasyon" Height="446" Width="391" MinHeight="446" MinWidth="391" Loaded="Window_Loaded"
+        Background="#FF3C3C3C">
+    <!-- Pencere arka plan rengi -->
     <Grid>
-        <Label Content="wifi konfigürasyonu" HorizontalAlignment="Center" Margin="0,27,0,0" VerticalAlignment="Top"/>
-        <Label Content="SSID:" HorizontalAlignment="Left" Margin="10,82,0,0" VerticalAlignment="Top"/>
-        <Label Content="Şifre:" HorizontalAlignment="Left" Margin="11,150,0,0" VerticalAlignment="Top"/>
-        <TextBox x:Name="wifi_ssid_textbox" HorizontalAlignment="Left" Margin="88,86,0,0" TextWrapping="Wrap" Text="marel_arge" VerticalAlignment="Top" Width="120"/>
-        <TextBox x:Name="wifi_sifre_textbox" HorizontalAlignment="Left" Margin="88,154,0,0" TextWrapping="Wrap" Text="test1234" VerticalAlignment="Top" Width="120"/>
-        <Button Content="Ayarla" HorizontalAlignment="Left" Margin="17,223,0,0" VerticalAlignment="Top" Height="40" Width="76" Click="cihazi_ayarla"/>
-        <Label Name="baglanti_durum_label" Foreground="Orange" Content="Bağlaniyor..." HorizontalAlignment="Left" Margin="5,27,0,0" VerticalAlignment="Top"/>
-        <Button Name ="tekrar_baglan_buton" Content="Tekrar Bağlan" HorizontalAlignment="Left" Margin="155,223,0,0" VerticalAlignment="Top" Height="40" Width="91" Click="tekrar_baglan"/>
+        <Label Content="wifi konfigürasyonu" HorizontalAlignment="Left" Margin="139,27,0,0" VerticalAlignment="Top"
+               Foreground="White"/>
+        <!-- Yazı rengi beyaz -->
+        <Label Content="SSID:" HorizontalAlignment="Left" Margin="10,82,0,0" VerticalAlignment="Top"
+               Foreground="White"/>
+        <Label Content="Şifre:" HorizontalAlignment="Left" Margin="11,150,0,0" VerticalAlignment="Top"
+               Foreground="White"/>
+        <TextBox x:Name="wifi_ssid_textbox" HorizontalAlignment="Left" Margin="88,86,0,0" TextWrapping="Wrap"
+                 Text="marel_arge" VerticalAlignment="Top" Width="120" 
+                 Background="#555555" Foreground="White"/>
+        <!-- TextBox arka planı ve yazı rengi -->
+        <TextBox x:Name="wifi_sifre_textbox" HorizontalAlignment="Left" Margin="88,154,0,0" TextWrapping="Wrap"
+                 Text="test1234" VerticalAlignment="Top" Width="120" 
+                 Background="#555555" Foreground="White"/>
+        <Button Content="Ayarla" HorizontalAlignment="Left" Margin="19,223,0,0" VerticalAlignment="Top" Height="40"
+                Width="76" Click="cihazi_ayarla"
+                Background="#444444" Foreground="White"/>
+        <!-- Buton arka planı ve yazı rengi -->
+        <Label Name="baglanti_durum_label" Foreground="Orange" Content="Bağlaniyor..." HorizontalAlignment="Left"
+               Margin="5,27,0,0" VerticalAlignment="Top"/>
+        <Button Name="tekrar_baglan_buton" Content="Tekrar Bağlan" HorizontalAlignment="Left" Margin="271,223,0,0"
+                VerticalAlignment="Top" Height="40" Width="91" Click="tekrar_baglan"
+                Background="#444444" Foreground="White"/>
         <TextBox Name="seriport_gelen_label" 
-ScrollViewer.HorizontalScrollBarVisibility="Auto"
-         ScrollViewer.VerticalScrollBarVisibility="Auto"
+                 ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                 ScrollViewer.VerticalScrollBarVisibility="Auto"
                  ScrollViewer.CanContentScroll="True"
-            Margin="17,287,10,10" TextWrapping="Wrap" Text=""/>
+                 Margin="17,287,10,10" TextWrapping="Wrap" Text=""
+                 Background="#555555" Foreground="White"/>
+        <Button x:Name="eldiven_ayarla_buton"  Content="Eldiven Ayarla" HorizontalAlignment="Left" Margin="139,223,0,0" VerticalAlignment="Top" Height="40"
+            Width="96" Click="eldiven_ayarla"
+            Background="#444444" Foreground="White"/>
     </Grid>
 </Window>

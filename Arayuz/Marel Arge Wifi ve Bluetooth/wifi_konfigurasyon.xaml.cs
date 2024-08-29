@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 using System.ComponentModel;
+using System.Runtime.InteropServices;
+using System.Windows.Interop;
+
 
 namespace marel_arge
 {
@@ -29,34 +32,38 @@ namespace marel_arge
                     var ports = searcher.Get().Cast<ManagementBaseObject>()
                                         .Select(p => p["Caption"].ToString())
                                         .ToList();
-
                     // "USB Serial Port" isminde bir cihaz var mı kontrol et
                     var usbSerialPort = ports.FirstOrDefault(port => port.Contains(cihaz_adi));
 
                     Dispatcher.Invoke(() =>
                     {
-                        if (usbSerialPort != null)
+                        try
                         {
-                            // Eğer cihaz bağlıysa COM port adını tespit et
-                            var portName = usbSerialPort.Split('(').Last().TrimEnd(')');
-
-                            // Seri portu aç ve dinle
-
-                            serialPort = new SerialPort(portName, 115200);
-                            serialPort.Open();
-                            serialPort.DataReceived += SerialPort_DataReceived;
-
-                            // Eğer cihaz bağlıysa bildirim gönder
-                            baglanti_durum_label.Content = "Bağlandı!";
-                            baglanti_durum_label.Foreground = Brushes.Green;
-                        }
-                        else
-                        {
+                            if (usbSerialPort != null)
+                            {
+                                // Eğer cihaz bağlıysa COM port adını tespit et
+                                var portName = usbSerialPort.Split('(').Last().TrimEnd(')');
+                                // Seri portu aç ve dinle
+                                serialPort = new SerialPort(portName, 115200);
+                                serialPort.Open();
+                                serialPort.DataReceived += SerialPort_DataReceived;
+                                // Eğer cihaz bağlıysa bildirim gönder
+                                baglanti_durum_label.Content = "Bağlandı!";
+                                baglanti_durum_label.Foreground = Brushes.Green;
+                            }
+                            else
+                            {
                             // Eğer cihaz bağlı değilse
+                                baglanti_durum_label.Content = "Bağlı Değil";
+                                baglanti_durum_label.Foreground = Brushes.Red;
+                            }
+                        }
+                        catch (Exception ex) {
                             baglanti_durum_label.Content = "Bağlı Değil";
                             baglanti_durum_label.Foreground = Brushes.Red;
+                            MessageBox.Show("Bağlantı hatası:" + ex.Message);
                         }
-                    });
+                     });
                 }
             });
         }
@@ -73,8 +80,13 @@ namespace marel_arge
             });
         }
 
+        
+
         private async void Window_Loaded(object sender, RoutedEventArgs e)
         {
+
+            Koyumod_UI.cerceveyi_koyumod_yap(this, true);
+
             await GetSerialPortAsync();
         }
 
@@ -128,6 +140,17 @@ namespace marel_arge
                 serialPort.Close();
             }
             base.OnClosing(e);
+        }
+
+        private async void eldiven_ayarla(object sender, RoutedEventArgs e)
+        {
+           string ssid = "ssid=" + wifi_ssid_textbox.Text;    // SSID değeri
+           string password = "sifre=" + wifi_sifre_textbox.Text; // Şifre değeri    
+           // MainWindow referansını al ve metodu çağır
+           MainWindow mainWindow = (MainWindow)Application.Current.MainWindow;
+           mainWindow.bluetooth_wifi_config(ssid);
+           await Task.Delay(1000);
+           mainWindow.bluetooth_wifi_config(password);
         }
     }
 }
