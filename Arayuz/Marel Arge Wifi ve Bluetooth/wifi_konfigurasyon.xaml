@@ -1,22 +1,17 @@
 ﻿<Window x:Class="marel_arge.wifi_konfigurasyon"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:marel_arge"
-        mc:Ignorable="d"
+        Background="Transparent"
         WindowStartupLocation="CenterScreen"
-        Title="wifi_konfigurasyon" Height="446" Width="391" MinHeight="446" MinWidth="391" Loaded="Window_Loaded"
-        Background="#FF3C3C3C">
+        Title="wifi_konfigurasyon" Height="446" Width="391" MinHeight="446" MinWidth="391" Loaded="Window_Loaded">
     <!-- Pencere arka plan rengi -->
     <Grid>
-        <Label Content="wifi konfigürasyonu" HorizontalAlignment="Left" Margin="139,27,0,0" VerticalAlignment="Top"
-               Foreground="White"/>
+        <Label Content="wifi konfigürasyonu" HorizontalAlignment="Left" Margin="139,27,0,0" VerticalAlignment="Top"  Foreground="White" />
         <!-- Yazı rengi beyaz -->
-        <Label Content="SSID:" HorizontalAlignment="Left" Margin="10,82,0,0" VerticalAlignment="Top"
-               Foreground="White"/>
-        <Label Content="Şifre:" HorizontalAlignment="Left" Margin="11,150,0,0" VerticalAlignment="Top"
-               Foreground="White"/>
+        <Label Content="SSID:" HorizontalAlignment="Left" Margin="10,82,0,0" VerticalAlignment="Top" Foreground="White"
+               />
+        <Label Content="Şifre:" HorizontalAlignment="Left" Margin="11,150,0,0" VerticalAlignment="Top" Foreground="White"
+               />
         <TextBox x:Name="wifi_ssid_textbox" HorizontalAlignment="Left" Margin="88,86,0,0" TextWrapping="Wrap"
                  Text="marel_arge" VerticalAlignment="Top" Width="120" 
                  Background="#555555" Foreground="White"/>

@@ -9,11 +9,14 @@ using System.ComponentModel;
 using System.Runtime.InteropServices;
 using System.Windows.Interop;
 
+using System.Net;
+
 
 namespace marel_arge
 {
-    public partial class wifi_konfigurasyon : Window
+    public partial class wifi_konfigurasyon : System.Windows.Window
     {
+
         string cihaz_adi = "USB Serial Port";
         private SerialPort serialPort;
 
@@ -84,11 +87,10 @@ namespace marel_arge
 
         private async void Window_Loaded(object sender, RoutedEventArgs e)
         {
-
-            Koyumod_UI.cerceveyi_koyumod_yap(this, true);
-
+            Koyumod_UI.temayı_degistir(this);
             await GetSerialPortAsync();
         }
+
 
         private async void tekrar_baglan(object sender, RoutedEventArgs e)
         {

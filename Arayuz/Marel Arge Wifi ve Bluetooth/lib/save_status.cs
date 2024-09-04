@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Interop;
 using System.Windows.Media;
 using Windows.Storage;
 
@@ -73,10 +74,7 @@ namespace marel_arge
             SaveCheckBoxStates();
         }
 
-        private void MainWindow_Loaded(object sender, RoutedEventArgs e)
-        {
-            LoadCheckBoxStates();
-        }
+
 
         //belirli bir türdeki tüm görsel alt öğeleri (children) bulmak için kullanılır
         public IEnumerable<T> FindVisualChildren<T>(DependencyObject depObj) where T : DependencyObject

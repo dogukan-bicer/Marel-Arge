@@ -177,7 +177,7 @@ namespace marel_arge
         {
                 await emg_calculate_async();
                 //hareket tespiti
-                if (emg_detect_1 && emg_detect_2 && emg_enable && emg_avg_calculated)
+                if (emg_detect_1 && emg_enable && emg_avg_calculated)
                 {
                     dataStr_1 = "255_255_255_255_255";
                     await Bluetooth_SendDataAsync(dataStr_1);

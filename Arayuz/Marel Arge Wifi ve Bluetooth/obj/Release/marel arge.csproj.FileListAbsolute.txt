@@ -19,3 +19,23 @@ C:\Users\doguk\source\repos\marel arge_\obj\Release\marel arge.csproj.CoreCompil
 C:\Users\doguk\source\repos\marel arge_\obj\Release\marel arge.csproj.CopyComplete
 C:\Users\doguk\source\repos\marel arge_\obj\Release\Marel Arge.exe
 C:\Users\doguk\source\repos\marel arge_\obj\Release\Marel Arge.pdb
+C:\Users\ulvib\OneDrive\Masaüstü\marel arge_\bin\Release\Marel Arge.exe.config
+C:\Users\ulvib\OneDrive\Masaüstü\marel arge_\bin\Release\Marel Arge.exe
+C:\Users\ulvib\OneDrive\Masaüstü\marel arge_\bin\Release\Marel Arge.pdb
+C:\Users\ulvib\OneDrive\Masaüstü\marel arge_\bin\Release\System.CodeDom.dll
+C:\Users\ulvib\OneDrive\Masaüstü\marel arge_\bin\Release\System.IO.Ports.dll
+C:\Users\ulvib\OneDrive\Masaüstü\marel arge_\obj\Release\marel arge.csproj.AssemblyReference.cache
+C:\Users\ulvib\OneDrive\Masaüstü\marel arge_\obj\Release\wifi_konfigurasyon.baml
+C:\Users\ulvib\OneDrive\Masaüstü\marel arge_\obj\Release\MainWindow.g.cs
+C:\Users\ulvib\OneDrive\Masaüstü\marel arge_\obj\Release\wifi_konfigurasyon.g.cs
+C:\Users\ulvib\OneDrive\Masaüstü\marel arge_\obj\Release\App.g.cs
+C:\Users\ulvib\OneDrive\Masaüstü\marel arge_\obj\Release\Marel Arge_MarkupCompile.cache
+C:\Users\ulvib\OneDrive\Masaüstü\marel arge_\obj\Release\Marel Arge_MarkupCompile.lref
+C:\Users\ulvib\OneDrive\Masaüstü\marel arge_\obj\Release\MainWindow.baml
+C:\Users\ulvib\OneDrive\Masaüstü\marel arge_\obj\Release\Marel Arge.g.resources
+C:\Users\ulvib\OneDrive\Masaüstü\marel arge_\obj\Release\marel_arge.Properties.Resources.resources
+C:\Users\ulvib\OneDrive\Masaüstü\marel arge_\obj\Release\marel arge.csproj.GenerateResource.cache
+C:\Users\ulvib\OneDrive\Masaüstü\marel arge_\obj\Release\marel arge.csproj.CoreCompileInputs.cache
+C:\Users\ulvib\OneDrive\Masaüstü\marel arge_\obj\Release\marel arge.csproj.Up2Date
+C:\Users\ulvib\OneDrive\Masaüstü\marel arge_\obj\Release\Marel Arge.exe
+C:\Users\ulvib\OneDrive\Masaüstü\marel arge_\obj\Release\Marel Arge.pdb

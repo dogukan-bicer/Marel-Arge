@@ -40,24 +40,7 @@ namespace marel_arge
         }
     }
 
-    public static class Koyumod_UI
-    {
-        const int DWMWA_USE_IMMERSIVE_DARK_MODE = 20;
 
-        [DllImport("dwmapi.dll", PreserveSig = true)]
-        public static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int attrValue, int attrSize);
-
-        public static void cerceveyi_koyumod_yap(Window window, bool enableDarkMode)
-        {
-            try
-            {
-                var hwnd = new WindowInteropHelper(window).Handle;
-                int isDarkMode = enableDarkMode ? 1 : 0;
-                DwmSetWindowAttribute(hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE, ref isDarkMode, sizeof(int));
-            }
-            catch { }
-        }
-    }
 
     public partial class MainWindow : Window
     {
@@ -132,6 +115,11 @@ namespace marel_arge
 
         private void wifi_konfigurasyon_menu(object sender, RoutedEventArgs e)
         {
+            //pwm_Ayari.IsEnabled = true;
+            //Tum_pwm.IsEnabled = true;
+            //el_tekrar_buton.IsEnabled = true;
+            //eldiven_ayarla.IsEnabled = true;
+            //emg_kayit_buton.IsEnabled = true;
             wifi_konfigurasyon wifi_Konfigurasyon_sayfa = new wifi_konfigurasyon();
             wifi_Konfigurasyon_sayfa.Show();
         }
@@ -146,15 +134,7 @@ namespace marel_arge
 
         public MainWindow()
         {
-            
-
             InitializeComponent();
-            pwm_Ayari.IsEnabled = false;
-            Tum_pwm.IsEnabled = false;
-            el_tekrar_buton.IsEnabled = false;
-            eldiven_ayarla.IsEnabled = false;
-            emg_kayit_buton.IsEnabled = false;
-
             this.Loaded += MainWindow_Loaded;
             this.Closing += MainWindow_Closing;
 
@@ -162,6 +142,12 @@ namespace marel_arge
             timer.Interval = TimeSpan.FromSeconds(3); // Her 5 saniyede bir
             timer.Tick += Timer_Tick; // Timer'ın tetikleyicisini ayarla
 
+        }
+        private void MainWindow_Loaded(object sender, RoutedEventArgs e)
+        {
+            LoadCheckBoxStates();
+            Koyumod_UI.temayı_degistir(this);
+            sunucu_durum.Foreground = Brushes.Red;
         }
 
         private void Timer_Tick(object sender, EventArgs e)
@@ -215,11 +201,6 @@ namespace marel_arge
                 }
             }));
 
-        }
-
-        private void Window_Loaded_1(object sender, RoutedEventArgs e)
-        {
-            Koyumod_UI.cerceveyi_koyumod_yap(this, true);
         }
 
         private void wifi_checkbox_Click(object sender, RoutedEventArgs e)

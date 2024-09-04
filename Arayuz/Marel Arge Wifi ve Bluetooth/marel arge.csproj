@@ -71,6 +71,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="lib\koyumod.cs" />
     <Compile Include="lib\save_status.cs" />
     <Compile Include="wifi_konfigurasyon.xaml.cs">
       <DependentUpon>wifi_konfigurasyon.xaml</DependentUpon>
