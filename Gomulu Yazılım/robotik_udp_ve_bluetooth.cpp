@@ -87,10 +87,7 @@ void setup() {
   Serial.println(".:Marel Arge:.");
   pinMode(12, OUTPUT);
   pinMode(17, OUTPUT);
-
-  pinMode(wifi_or_bluetooth_pin, INPUT_PULLUP);
-
-  pinMode(2, INPUT);
+  pinMode(wifi_or_bluetooth_pin, INPUT_PULLDOWN);
   pinMode(4, INPUT);
   pinMode(13, INPUT);
   pinMode(15, INPUT);
@@ -118,7 +115,7 @@ void setup() {
   ledcWrite(ledChannel, 0);
 
   // Pin durumuna göre wifi yada bluetootha bağlan
-  if (touchRead(wifi_or_bluetooth_pin) > dokunma_esigi) {
+  if (digitalRead(wifi_or_bluetooth_pin)==0) {
     EEPROM.begin(EEPROM_SIZE);
     Serial.println("EEPROM okunmaya hazır");
     if (isEEPROMEmpty()) {
@@ -215,7 +212,7 @@ void robotik_bluetooth_handler(void *parameter) {
     if (new_time - old_time > 700) {
       digitalWrite(mavi_led, HIGH);
       //pinde değişim var ise esp yi sıfırla
-      if (touchRead(wifi_or_bluetooth_pin) > dokunma_esigi) {
+      if (digitalRead(wifi_or_bluetooth_pin)==0) {
         Serial.println("UDP ye geçiyor..");
         ESP.restart();
       }
@@ -297,7 +294,7 @@ void robotik_wifi_handler(void *parameter) {
     if (new_time - old_time > 700) {
       digitalWrite(kirmizi_led, HIGH);
           //pinde değişim var ise esp yi sıfırla
-      if (touchRead(wifi_or_bluetooth_pin) < dokunma_esigi) {
+      if (digitalRead(wifi_or_bluetooth_pin)==1) {
           Serial.println("Bluetoota geçiyor..");
           ESP.restart();
       }
@@ -453,7 +450,7 @@ void connectToWifi(const String &ssid, const String &password) {
         waitForCredentials();  // Yeni kimlik bilgilerini bekle
       }
       //pinde değişim olursa bluetootha geç
-      if (touchRead(wifi_or_bluetooth_pin) < dokunma_esigi) {
+      if (digitalRead(wifi_or_bluetooth_pin)) {
           Serial.println("Bluetoota geçiyor..");
           ESP.restart();
       }
