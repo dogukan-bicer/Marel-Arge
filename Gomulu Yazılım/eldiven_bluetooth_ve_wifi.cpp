@@ -9,7 +9,14 @@
 
 #define EEPROM_SIZE 96
 #define dusuk_pil_seviyesi 550
+#define numReadings 250  // Okuma sayısı
 bool wifiConnected = false;
+
+int readings_1[numReadings];  // Her sensör için okuma dizileri
+int readings_2[numReadings];
+int readings_3[numReadings];
+int readings_4[numReadings];
+int readings_5[numReadings];
 
 const int led_g = 17;
 const int led_b = 18;
@@ -21,8 +28,11 @@ const int flex_4 = 35;
 const int flex_5 = 32;
 const int bat_v = 33;
 
-const char* ssid = "marel_arge";
-const char* password = "test1234";
+const int wifibaglantisuresi = 10000;
+
+int flex_analog_1_old,flex_analog_2_old,flex_analog_3_old,
+flex_analog_4_old,flex_analog_5_old;
+
 const int localPort = 1235; // UDP sunucusu portu
 
 WiFiUDP udp;
@@ -69,11 +79,25 @@ void setup() {
   pinMode(led_g, OUTPUT);
   pinMode(led_b, OUTPUT);
   pinMode(led_r, OUTPUT);
-  pinMode(flex_1, INPUT);
   pinMode(bat_v, INPUT);
   Serial.begin(115200);
   SerialBT.begin("Marel Eldiven"); // Bluetooth Serial başlat
   Serial.println(".:Marel Arge:.");
+
+  Serial.println("led test basladi");
+  digitalWrite(led_r, 1);//bluetooth ısıgı
+  delay(200);
+  digitalWrite(led_r, 0);//bluetooth ısıgı
+  delay(200);
+  digitalWrite(led_g, 1);//bluetooth ısıgı
+  delay(200);
+  digitalWrite(led_g, 0);//bluetooth ısıgı
+  delay(200);
+  digitalWrite(led_b, 1);//bluetooth ısıgı
+  delay(200);
+  digitalWrite(led_b, 0);//bluetooth ısıgı
+  delay(200);
+  Serial.println("led test bitti");
 
   // WiFi ağa bağlan
   EEPROM.begin(EEPROM_SIZE);
@@ -96,7 +120,6 @@ void setup() {
   xTaskCreate(bluetoothTask, "Bluetooth Task", 4096, NULL, 1, &bluetoothTaskHandle);
   xTaskCreate(sensorTask, "Sensor Task", 10000, NULL, 2, &sensorTaskHandle);
   xTaskCreate(bluetoothReadTask, "Bluetooth Read Task", 4096, NULL, 4, &bluetoothReadHandle);
-  xTaskCreate(ledTask, "LED Task", 4096, NULL, 5, &ledTaskHandle);
 }
 
 void loop() {
@@ -107,16 +130,9 @@ void bluetoothTask(void *pvParameters) {
   while (true) {
     // Bluetooth üzerinden veri gönder
     SerialBT.println(Eldiven_data);
-    if(bat_low)
-    {
-      digitalWrite(led_b, 0);//bluetooth ısıgı
-    } else 
-    {
-      toggle2 = !toggle2;
-      digitalWrite(led_b, toggle2);//bluetooth ısıgı
-    }
+    toggle2 = !toggle2;
     Serial.println("bluetooth giden=" + Eldiven_data); 
-    vTaskDelay(pdMS_TO_TICKS(339)); // Delay for 350 milliseconds
+    vTaskDelay(pdMS_TO_TICKS(1000)); // Delay for 350 milliseconds
   }
 }
 
@@ -155,11 +171,29 @@ void sensorTask(void *pvParameters) {
       // Serial.print("Pitch: "); //To read out the Pitch
       // Serial.println(z_eksen); //Convert to degrees
 
-      flex_analog_1 = analogRead(flex_1);
-      flex_analog_2 = analogRead(flex_2);
-      flex_analog_3 = analogRead(flex_3);
-      flex_analog_4 = analogRead(flex_4);
-      flex_analog_5 = analogRead(flex_5);
+
+        // Yeni analog okuma değerlerini al
+    for (int i = 0; i < numReadings; i++) {
+      readings_1[i] = analogRead(flex_1);
+      readings_2[i] = analogRead(flex_2);
+      readings_3[i] = analogRead(flex_3);
+      readings_4[i] = analogRead(flex_4);
+      readings_5[i] = analogRead(flex_5);
+      vTaskDelay(pdMS_TO_TICKS(3));  // Her okuma arasında biraz bekle
+    }
+
+      flex_analog_1 = CalculateAVR(readings_1); 
+      flex_analog_2 = CalculateAVR(readings_2); 
+      flex_analog_3 = CalculateAVR(readings_3); 
+      flex_analog_4 = CalculateAVR(readings_4); 
+      flex_analog_5 = CalculateAVR(readings_5); 
+  // İlk ve son okumaları karşılaştır ve eğer fark 1'den küçükse yeni değerleri yok say
+      flex_analog_1 = abs(flex_analog_1 - flex_analog_1_old) < 50 ? flex_analog_1_old:flex_analog_1 ;
+      flex_analog_2 = abs(flex_analog_2 - flex_analog_2_old) < 50 ? flex_analog_2_old:flex_analog_2 ;
+      flex_analog_3 = abs(flex_analog_3 - flex_analog_3_old) < 50 ? flex_analog_3_old:flex_analog_3 ;
+      flex_analog_4 = abs(flex_analog_4 - flex_analog_4_old) < 50 ? flex_analog_4_old:flex_analog_4 ;
+      flex_analog_5 = abs(flex_analog_5 - flex_analog_5_old) < 50 ? flex_analog_5_old:flex_analog_5 ;
+
       bat_analog =    analogRead(bat_v);
       Eldiven_data = "El=" + String(flex_analog_1) + '_' +
                      String(flex_analog_2) + '_' +
@@ -170,21 +204,32 @@ void sensorTask(void *pvParameters) {
                      String(y_eksen) + '_' +
                      String(z_eksen) + '_' +
                      String(bat_analog);
-      vTaskDelay(pdMS_TO_TICKS(250)); // Delay for 1 millisecond
+
+      flex_analog_1_old = flex_analog_1;
+      flex_analog_2_old = flex_analog_2;
+      flex_analog_3_old = flex_analog_3;
+      flex_analog_4_old = flex_analog_4;
+      flex_analog_5_old = flex_analog_5;
   }
 }
 
 void ledTask(void *pvParameters) {
   while (true) {
+    toggle = !toggle;
     if(bat_analog < dusuk_pil_seviyesi){
-      toggle3 = !toggle3;
-      bat_low = true;
-      digitalWrite(led_r, toggle3);
+      digitalWrite(led_r, toggle);
+      Serial.println("dusuk pil");
     }
     else{
-      bat_low = false;
+      digitalWrite(led_r, 0);
     }
-    vTaskDelay(pdMS_TO_TICKS(1000)); // Delay for 1 millisecond
+
+    if(wifiConnected){
+      digitalWrite(led_g, toggle);
+    }else{
+      digitalWrite(led_b, toggle);
+    }
+    vTaskDelay(pdMS_TO_TICKS(1100)); // Delay for 1 millisecond
   }
 }
 
@@ -197,20 +242,14 @@ void dataSendTask(void *pvParameters) {
       udp.println(Eldiven_data);
       udp.endPacket();
       Serial.println("udp giden=" + Eldiven_data); 
-      if(bat_low){
-        digitalWrite(led_g, 0);
-      }else{
-        toggle = !toggle;
-        digitalWrite(led_g, toggle);
-      }
-    vTaskDelay(pdMS_TO_TICKS(340)); // Delay for 350 milliseconds
+      vTaskDelay(pdMS_TO_TICKS(999)); // Delay for 350 milliseconds
   }
 }
 
 void bluetoothReadTask(void *pvParameters) {
   while (true) {
     waitForBluetoothCredentials();
-    vTaskDelay(pdMS_TO_TICKS(500));
+    vTaskDelay(pdMS_TO_TICKS(100));
   }
 }
 
@@ -341,7 +380,7 @@ void connectToWifi(const String &ssid, const String &password) {
 
     unsigned long startAttemptTime = millis(); // Bağlantı denemesinin başlangıç zamanını kaydet
 
-    while (WiFi.status() != WL_CONNECTED && millis() - startAttemptTime < 20000) { // 20 saniye sınırı
+    while (WiFi.status() != WL_CONNECTED && millis() - startAttemptTime < wifibaglantisuresi) { // 20 saniye sınırı
       delay(500);
       Serial.print(".");
 
@@ -356,11 +395,12 @@ void connectToWifi(const String &ssid, const String &password) {
       if (udp.begin(localPort)) {
         Serial.println(" UDP sunucusu başlatıldı");
         Serial.print("IP address: ");
+        wifiConnected = true;
         Serial.println(WiFi.localIP());
         //FreeRTOS task
         xTaskCreate(dataSendTask, "Data Send Task", 4096, NULL, 3, &dataSendTaskHandle);
         xTaskCreate(wifiTask, "WiFi Task", 4096, NULL, 1, &wifiTaskHandle);
-
+        xTaskCreate(ledTask, "LED Task", 4096, NULL, 3, &ledTaskHandle);
       } else {
         Serial.println("UDP sunucusu başlatılamadı");
         while (1); // Durdur ve hata durumunda döngüye gir
@@ -369,6 +409,7 @@ void connectToWifi(const String &ssid, const String &password) {
     } else {
       Serial.println("\nBaglanti basarisiz, Bluetooth ile devam ediliyor.");
       wifiConnected = false; // WiFi bağlantısı başarısız
+      xTaskCreate(ledTask, "LED Task", 4096, NULL, 3, &ledTaskHandle);
     }
   } else {
     // EEPROM'da SSID veya şifre yoksa yeni kimlik bilgilerini bekle
@@ -383,4 +424,14 @@ bool isEEPROMEmpty() {
     }
   }
   return true;
+}
+
+
+// Integer RMS hesaplama fonksiyonu
+int CalculateAVR(int readings[]) {
+  long sumOfSquares = 0;  // Uzun tip kullanılarak taşmalar önlenir
+  for (int i = 0; i < numReadings; i++) {
+    sumOfSquares += readings[i];
+  }
+  return sumOfSquares / numReadings;  // Ortalama alınıp karekök alınır
 }
