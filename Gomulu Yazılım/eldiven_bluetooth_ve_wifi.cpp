@@ -117,8 +117,8 @@ void setup() {
   }
 
   // FreeRTOS tasks
-  xTaskCreate(bluetoothTask, "Bluetooth Task", 4096, NULL, 1, &bluetoothTaskHandle);
-  xTaskCreate(sensorTask, "Sensor Task", 10000, NULL, 2, &sensorTaskHandle);
+  xTaskCreate(bluetoothTask, "Bluetooth Task", 4096, NULL, 10, &bluetoothTaskHandle);//en öncelikli gorev
+  xTaskCreate(sensorTask, "Sensor Task", 4096, NULL, 5, &sensorTaskHandle);
   xTaskCreate(bluetoothReadTask, "Bluetooth Read Task", 4096, NULL, 4, &bluetoothReadHandle);
 }
 
@@ -188,11 +188,11 @@ void sensorTask(void *pvParameters) {
       flex_analog_4 = CalculateAVR(readings_4); 
       flex_analog_5 = CalculateAVR(readings_5); 
   // İlk ve son okumaları karşılaştır ve eğer fark 1'den küçükse yeni değerleri yok say
-      flex_analog_1 = abs(flex_analog_1 - flex_analog_1_old) < 50 ? flex_analog_1_old:flex_analog_1 ;
-      flex_analog_2 = abs(flex_analog_2 - flex_analog_2_old) < 50 ? flex_analog_2_old:flex_analog_2 ;
-      flex_analog_3 = abs(flex_analog_3 - flex_analog_3_old) < 50 ? flex_analog_3_old:flex_analog_3 ;
-      flex_analog_4 = abs(flex_analog_4 - flex_analog_4_old) < 50 ? flex_analog_4_old:flex_analog_4 ;
-      flex_analog_5 = abs(flex_analog_5 - flex_analog_5_old) < 50 ? flex_analog_5_old:flex_analog_5 ;
+      flex_analog_1 = abs(flex_analog_1 - flex_analog_1_old) < 20 ? flex_analog_1_old:flex_analog_1 ;
+      flex_analog_2 = abs(flex_analog_2 - flex_analog_2_old) < 20 ? flex_analog_2_old:flex_analog_2 ;
+      flex_analog_3 = abs(flex_analog_3 - flex_analog_3_old) < 20 ? flex_analog_3_old:flex_analog_3 ;
+      flex_analog_4 = abs(flex_analog_4 - flex_analog_4_old) < 20 ? flex_analog_4_old:flex_analog_4 ;
+      flex_analog_5 = abs(flex_analog_5 - flex_analog_5_old) < 20 ? flex_analog_5_old:flex_analog_5 ;
 
       bat_analog =    analogRead(bat_v);
       Eldiven_data = "El=" + String(flex_analog_1) + '_' +
