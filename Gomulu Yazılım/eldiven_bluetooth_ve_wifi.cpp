@@ -8,8 +8,8 @@
 #include <freertos/task.h>
 
 #define EEPROM_SIZE 96
-#define dusuk_pil_seviyesi 550
-#define numReadings 250  // Okuma sayısı
+#define dusuk_pil_seviyesi 700
+#define numReadings 15  // Okuma sayısı
 bool wifiConnected = false;
 
 int readings_1[numReadings];  // Her sensör için okuma dizileri
@@ -17,6 +17,7 @@ int readings_2[numReadings];
 int readings_3[numReadings];
 int readings_4[numReadings];
 int readings_5[numReadings];
+int readings_6[numReadings];
 
 const int led_g = 17;
 const int led_b = 18;
@@ -28,7 +29,7 @@ const int flex_4 = 35;
 const int flex_5 = 32;
 const int bat_v = 33;
 
-const int wifibaglantisuresi = 10000;
+const int wifibaglantisuresi = 5000;
 
 int flex_analog_1_old,flex_analog_2_old,flex_analog_3_old,
 flex_analog_4_old,flex_analog_5_old;
@@ -39,7 +40,7 @@ WiFiUDP udp;
 BluetoothSerial SerialBT; // Bluetooth Serial nesnesi
 
 int flex_analog_1, flex_analog_2, flex_analog_3, flex_analog_4, flex_analog_5;
-int bat_analog;
+int bat_analog,bat_analog_old;
 boolean toggle, toggle2, toggle3 = false;
 char bluetoothpaketi[50]; // Bluetooth paketi için dizi
 
@@ -52,6 +53,7 @@ String Eldiven_data;
 int x_eksen, y_eksen, z_eksen = 0;
 
 bool bat_low = false;
+uint32_t new_time,old_time;
 
 //statik ip
 IPAddress local_IP(192, 168, 1, 35);
@@ -72,9 +74,9 @@ void setup() {
   //Initialize I2C communication
   Wire.begin();
   //Initialization of the BNO055
-  //  BNO_Init(&myBNO); //Assigning the structure to hold information about the device
-  // //Configuration to NDoF mode
-  // bno055_set_operation_mode(OPERATION_MODE_NDOF);
+   BNO_Init(&myBNO); //Assigning the structure to hold information about the device
+  //Configuration to NDoF mode
+  bno055_set_operation_mode(OPERATION_MODE_NDOF);
 
   pinMode(led_g, OUTPUT);
   pinMode(led_b, OUTPUT);
@@ -156,22 +158,6 @@ void wifiTask(void *pvParameters) {
 void sensorTask(void *pvParameters) {
 
   while (true) {
-
-      // bno055_read_euler_hrp(&myEulerData); //Update Euler data into the structure
-
-      // x_eksen = int(myEulerData.h) / 16;
-      // Serial.print("Heading(Yaw): "); //To read out the Heading (Yaw)
-      // Serial.println(x_eksen);        //Convert to degrees
-
-      // y_eksen = int(myEulerData.r) / 16;
-      // Serial.print("Roll: "); //To read out the Roll
-      // Serial.println(y_eksen); //Convert to degrees
-
-      // z_eksen = int(myEulerData.p) / 16;
-      // Serial.print("Pitch: "); //To read out the Pitch
-      // Serial.println(z_eksen); //Convert to degrees
-
-
         // Yeni analog okuma değerlerini al
     for (int i = 0; i < numReadings; i++) {
       readings_1[i] = analogRead(flex_1);
@@ -179,23 +165,43 @@ void sensorTask(void *pvParameters) {
       readings_3[i] = analogRead(flex_3);
       readings_4[i] = analogRead(flex_4);
       readings_5[i] = analogRead(flex_5);
-      vTaskDelay(pdMS_TO_TICKS(3));  // Her okuma arasında biraz bekle
+      readings_6[i] = analogRead(bat_v);
+      vTaskDelay(pdMS_TO_TICKS(49));  // Her okuma arasında biraz bekle
     }
+
+      new_time = millis();
+      if (new_time - old_time > 999) {
+
+        bno055_read_euler_hrp(&myEulerData); //Update Euler data into the structure
+        x_eksen = int(myEulerData.h) / 16;
+        Serial.print(" Heading(Yaw): "); //To read out the Heading (Yaw)
+        Serial.print(x_eksen);        //Convert to degrees
+
+        y_eksen = int(myEulerData.r) / 16;
+        Serial.print(" Roll: "); //To read out the Roll
+        Serial.print(y_eksen); //Convert to degrees
+
+        z_eksen = int(myEulerData.p) / 16;
+        Serial.print(" Pitch: "); //To read out the Pitch
+        Serial.println(z_eksen); //Convert to degreesm
+        old_time = new_time;
+      }
 
       flex_analog_1 = CalculateAVR(readings_1); 
       flex_analog_2 = CalculateAVR(readings_2); 
       flex_analog_3 = CalculateAVR(readings_3); 
       flex_analog_4 = CalculateAVR(readings_4); 
       flex_analog_5 = CalculateAVR(readings_5); 
+      bat_analog    = CalculateAVR(readings_6);
   // İlk ve son okumaları karşılaştır ve eğer fark 1'den küçükse yeni değerleri yok say
-      flex_analog_1 = abs(flex_analog_1 - flex_analog_1_old) < 20 ? flex_analog_1_old:flex_analog_1 ;
-      flex_analog_2 = abs(flex_analog_2 - flex_analog_2_old) < 20 ? flex_analog_2_old:flex_analog_2 ;
-      flex_analog_3 = abs(flex_analog_3 - flex_analog_3_old) < 20 ? flex_analog_3_old:flex_analog_3 ;
-      flex_analog_4 = abs(flex_analog_4 - flex_analog_4_old) < 20 ? flex_analog_4_old:flex_analog_4 ;
-      flex_analog_5 = abs(flex_analog_5 - flex_analog_5_old) < 20 ? flex_analog_5_old:flex_analog_5 ;
+      flex_analog_1 = abs(flex_analog_1 - flex_analog_1_old) < 25 ? flex_analog_1_old:flex_analog_1 ;
+      flex_analog_2 = abs(flex_analog_2 - flex_analog_2_old) < 25 ? flex_analog_2_old:flex_analog_2 ;
+      flex_analog_3 = abs(flex_analog_3 - flex_analog_3_old) < 25 ? flex_analog_3_old:flex_analog_3 ;
+      flex_analog_4 = abs(flex_analog_4 - flex_analog_4_old) < 25 ? flex_analog_4_old:flex_analog_4 ;
+      flex_analog_5 = abs(flex_analog_5 - flex_analog_5_old) < 25 ? flex_analog_5_old:flex_analog_5 ;
+      bat_analog    = abs(bat_analog - bat_analog_old) < 5 ? bat_analog_old:bat_analog ;
 
-      bat_analog =    analogRead(bat_v);
-      Eldiven_data = "El=" + String(flex_analog_1) + '_' +
+      Eldiven_data  = "El=" + String(flex_analog_1) + '_' +
                      String(flex_analog_2) + '_' +
                      String(flex_analog_3) + '_' +
                      String(flex_analog_4) + '_' +
@@ -210,6 +216,7 @@ void sensorTask(void *pvParameters) {
       flex_analog_3_old = flex_analog_3;
       flex_analog_4_old = flex_analog_4;
       flex_analog_5_old = flex_analog_5;
+      bat_analog_old = bat_analog;
   }
 }
 
@@ -429,9 +436,9 @@ bool isEEPROMEmpty() {
 
 // Integer RMS hesaplama fonksiyonu
 int CalculateAVR(int readings[]) {
-  long sumOfSquares = 0;  // Uzun tip kullanılarak taşmalar önlenir
-  for (int i = 0; i < numReadings; i++) {
-    sumOfSquares += readings[i];
-  }
-  return sumOfSquares / numReadings;  // Ortalama alınıp karekök alınır
+    long long sumOfSquares = 0;  // Uzun tip kullanılarak taşmalar önlenir
+    for (int i = 0; i < numReadings; i++) {
+        sumOfSquares += readings[i] * readings[i];  // Her değerin karesi alınır
+    }
+    return sqrt(sumOfSquares / numReadings);  // Ortalama alınıp karekök alınır
 }
