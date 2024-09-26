@@ -143,33 +143,33 @@
         <Label  Grid.Column="2" Content="Flex Sensör 3" HorizontalAlignment="Left" Margin="101,526,0,0" VerticalAlignment="Top"/>
         <Label  Grid.Column="2" Content="Flex Sensör 4" HorizontalAlignment="Left" Margin="198,526,0,0" VerticalAlignment="Top"/>
         <Label  Grid.Column="2" Content="Flex Sensör 5" HorizontalAlignment="Left" Margin="306,526,0,0" VerticalAlignment="Top"/>
-        <Label  x:Name="flex_sensor_1_label" Grid.Column="1" Content="0" HorizontalAlignment="Center" Margin="0,571,0,0" VerticalAlignment="Top" Width="79"/>
-        <Label  x:Name="flex_sensor_2_label" Grid.Column="2" Content="0" HorizontalAlignment="Left" Margin="10,571,0,0" VerticalAlignment="Top" Width="66"/>
-        <Label  x:Name="flex_sensor_3_label" Grid.Column="2" Content="0" HorizontalAlignment="Left" Margin="109,571,0,0" VerticalAlignment="Top" Width="79"/>
-        <Label  x:Name="flex_sensor_4_label" Grid.Column="2" Content="0" HorizontalAlignment="Left" Margin="199,571,0,0" VerticalAlignment="Top" Width="79"/>
-        <Label  x:Name="flex_sensor_5_label" Grid.Column="2" Content="0" HorizontalAlignment="Left" Margin="306,571,0,0" VerticalAlignment="Top" Width="79"/>
+        <Label FontSize="20" x:Name="flex_sensor_1_label" Grid.Column="1" Content="0" HorizontalAlignment="Center" Margin="0,571,0,0" VerticalAlignment="Top" Width="79"/>
+        <Label FontSize="20" x:Name="flex_sensor_2_label" Grid.Column="2" Content="0" HorizontalAlignment="Left" Margin="10,572,0,0" VerticalAlignment="Top" Width="66"/>
+        <Label FontSize="20" x:Name="flex_sensor_3_label" Grid.Column="2" Content="0" HorizontalAlignment="Left" Margin="109,572,0,0" VerticalAlignment="Top" Width="79"/>
+        <Label FontSize="20" x:Name="flex_sensor_4_label" Grid.Column="2" Content="0" HorizontalAlignment="Left" Margin="199,571,0,0" VerticalAlignment="Top" Width="79"/>
+        <Label FontSize="20" x:Name="flex_sensor_5_label" Grid.Column="2" Content="0" HorizontalAlignment="Left" Margin="306,571,0,0" VerticalAlignment="Top" Width="79"/>
         <Label  Grid.Column="2" Content="X eksen" HorizontalAlignment="Left" Margin="398,526,0,0" VerticalAlignment="Top"/>
         <Label  Grid.Column="2" Content="Y eksen" HorizontalAlignment="Left" Margin="469,526,0,0" VerticalAlignment="Top"/>
         <Label  Grid.Column="2" Content="Z eksen" HorizontalAlignment="Left" Margin="540,526,0,0" VerticalAlignment="Top"/>
         <Label  Grid.Column="2" Content="Pil yüzdesi" HorizontalAlignment="Left" Margin="609,526,0,0" VerticalAlignment="Top"/>
-        <Label x:Name="x_eksen_label"  Grid.Column="2" Content="0" HorizontalAlignment="Left" Margin="404,571,0,0" VerticalAlignment="Top" Width="49"/>
-        <Label x:Name="y_eksen_label" Grid.Column="2" Content="0" HorizontalAlignment="Left" Margin="471,571,0,0" VerticalAlignment="Top" Width="49"/>
-        <Label x:Name="z_eksen_label" Grid.Column="2" Content="0" HorizontalAlignment="Left" Margin="549,571,0,0" VerticalAlignment="Top" Width="49"/>
-        <Label x:Name="pil_seviyesi_label" Grid.Column="2" Content="0" HorizontalAlignment="Left" Margin="617,571,0,0" VerticalAlignment="Top" Width="49"/>
+        <Label FontSize="20" x:Name="x_eksen_label"  Grid.Column="2" Content="0" HorizontalAlignment="Left" Margin="404,571,0,0" VerticalAlignment="Top" Width="49"/>
+        <Label FontSize="20" x:Name="y_eksen_label" Grid.Column="2" Content="0" HorizontalAlignment="Left" Margin="471,571,0,0" VerticalAlignment="Top" Width="49"/>
+        <Label FontSize="20" x:Name="z_eksen_label" Grid.Column="2" Content="0" HorizontalAlignment="Left" Margin="549,571,0,0" VerticalAlignment="Top" Width="49"/>
+        <Label FontSize="20" x:Name="pil_seviyesi_label" Grid.Column="2" Content="0" HorizontalAlignment="Left" Margin="617,571,0,0" VerticalAlignment="Top" Width="83"/>
         <Label  Grid.Column="2" Content="Emg Verisi 1" Margin="648,250,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Width="88"/>
         <Button IsEnabled="false" Content="Tekrarla"  HorizontalAlignment="Left" Height="34" Margin="385,223,0,0" VerticalAlignment="Top" Width="116" Click="el_acma_kapama" x:Name="el_tekrar_buton" Grid.Column="2" />
-        <Label  x:Name="emg_data_label" Grid.Column="2" Content="0" HorizontalAlignment="Left" Margin="672,275,0,0" VerticalAlignment="Top" Width="79"/>
+        <Label   x:Name="emg_data_label" FontSize="20" Grid.Column="2" Content="0" HorizontalAlignment="Left" Margin="672,274,0,0" VerticalAlignment="Top" Width="79"/>
         <Button IsEnabled="false" Content="eldiven Ayarla"  HorizontalAlignment="Left" Height="33" Margin="641,480,0,0" VerticalAlignment="Top" Width="107" Click="eldiven_ayarla_1" x:Name="eldiven_ayarla" Grid.Column="2" />
         <TextBox x:Name="tekrar_sayisi_textbox" Grid.Column="2" HorizontalAlignment="Left" Margin="540,231,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="70"/>
         <Button Content="Emg Kalibrasyon"  HorizontalAlignment="Left" Height="37" Margin="385,16,0,0" VerticalAlignment="Top" Width="116" Click="emg_kaydet" x:Name="emg_kayit" Grid.Column="2"/>
         <Label  Grid.Column="2" Content="Emg Verisi 2" Margin="652,348,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Width="82"/>
-        <Label  x:Name="emg_data_2_label" Grid.Column="2" Content="0" HorizontalAlignment="Left" Margin="672,375,0,0" VerticalAlignment="Top" Width="79"/>
+        <Label FontSize="20" x:Name="emg_data_2_label" Grid.Column="2" Content="0" HorizontalAlignment="Left" Margin="672,375,0,0" VerticalAlignment="Top" Width="79"/>
         <Label Grid.Column="2" Content="Hareket bekleniyor..." HorizontalAlignment="Left" Name="emg_hareket_label" Margin="634,308,0,0" VerticalAlignment="Top"/>
         <Label Grid.Column="2" Content="Hareket bekleniyor..." HorizontalAlignment="Left" Name="emg2_hareket_label" Margin="634,412,0,0" VerticalAlignment="Top"/>
         <TextBox x:Name="Emg_esik_textbox" Grid.Column="2" HorizontalAlignment="Left" Margin="641,217,0,0" TextWrapping="Wrap" Text="300" VerticalAlignment="Top" Width="107" TextChanged="Emg_esik_textbox_TextChanged"/>
         <Button IsEnabled="false" x:Name="emg_kayit_buton" Content="emg kayit"  HorizontalAlignment="Left" Height="29" Margin="540,179,0,0" VerticalAlignment="Top" Width="70" Click="esik_ayar"  Grid.Column="2"/>
-        <Label  x:Name="last_emg_data_label" Grid.Column="2" Content="0" HorizontalAlignment="Left" Margin="597,275,0,0" VerticalAlignment="Top" Width="56"/>
-        <Label  x:Name="last_emg_data2_label" Grid.Column="2" Content="0" HorizontalAlignment="Left" Margin="599,374,0,0" VerticalAlignment="Top" Width="54"/>
+        <Label  FontSize="20" x:Name="last_emg_data_label" Grid.Column="2" Content="0" HorizontalAlignment="Left" Margin="597,275,0,0" VerticalAlignment="Top" Width="56"/>
+        <Label FontSize="20" x:Name="last_emg_data2_label" Grid.Column="2" Content="0" HorizontalAlignment="Left" Margin="599,374,0,0" VerticalAlignment="Top" Width="54"/>
         <Label x:Name="test_label" Content="Bağlanti modu:" HorizontalAlignment="Left" Height="38" Margin="22,120,0,0" VerticalAlignment="Top" Width="166" Grid.Column="1" Grid.ColumnSpan="2"/>
         <CheckBox x:Name ="bluetooth_checkbox"  Grid.Column="2" Content="Bluetooth" HorizontalAlignment="Left" Margin="139,124,0,0" VerticalAlignment="Top" Width="118" IsChecked="True" Click="Bluetooth_checkbox_Click" />
         <CheckBox x:Name ="wifi_checkbox"  Grid.Column="2" Content="Wifi" HorizontalAlignment="Left" Margin="265,124,0,0" VerticalAlignment="Top" Width="118" IsChecked="False" Click="wifi_checkbox_Click"  />
@@ -177,6 +177,11 @@
         <Button  Content="Wi-Fi Konfigürasyon"  HorizontalAlignment="Left" Height="34" Margin="385,119,0,0" VerticalAlignment="Top" Width="116" Click="wifi_konfigurasyon_menu" x:Name="el_tekrar_buton_Copy1" Grid.Column="2"/>
         <CheckBox x:Name ="emg_hareket_tespit_checkbox"  Grid.Column="2" Content="Emg hareket tespit" HorizontalAlignment="Left" Margin="383,75,0,0" VerticalAlignment="Top" Width="136" Click="emg_movement_Click" IsChecked="True" />
         <Label x:Name ="emg_record_count_label"  Grid.Column="2" Content="" HorizontalAlignment="Left" Margin="540,148,0,0" VerticalAlignment="Top" Width="61"/>
+        <Label FontSize="20" x:Name="flex_sensor_5_raw" Grid.Column="2" Content="0" HorizontalAlignment="Left" Margin="306,594,0,0" VerticalAlignment="Top" Width="79"/>
+        <Label FontSize="20" x:Name="flex_sensor_4_raw" Grid.Column="2" Content="0" HorizontalAlignment="Left" Margin="199,594,0,0" VerticalAlignment="Top" Width="79"/>
+        <Label FontSize="20" x:Name="flex_sensor_3_raw" Grid.Column="2" Content="0" HorizontalAlignment="Left" Margin="109,594,0,0" VerticalAlignment="Top" Width="79"/>
+        <Label FontSize="20" x:Name="flex_sensor_2_raw" Grid.Column="2" Content="0" HorizontalAlignment="Left" Margin="10,594,0,0" VerticalAlignment="Top" Width="66"/>
+        <Label FontSize="20" x:Name="flex_sensor_1_raw" Grid.Column="1" Content="0" HorizontalAlignment="Center" Margin="0,594,0,0" VerticalAlignment="Top" Width="79"/>
 
 
     </Grid>

@@ -329,6 +329,73 @@ namespace marel_arge
             }));
         }
 
+        int mapValue(int x, int in_min, int in_max, int out_min, int out_max)
+        {
+            int result = (int)((x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min);
+            return result < 0 ? 0 : result;
+        }
+
+        void calculate_eldiven_data()
+        {
+            Dispatcher.Invoke(new Action(() =>
+            {
+                flex_sensor_1_raw.Content = flex_sensor_1;
+                flex_sensor_2_raw.Content = flex_sensor_2;
+                flex_sensor_3_raw.Content = flex_sensor_3;
+                flex_sensor_4_raw.Content = flex_sensor_4;
+                flex_sensor_5_raw.Content = flex_sensor_5;
+            }));
+
+            flex_sensor_1 = curvefit_1(flex_sensor_1);
+            flex_sensor_2 = curvefit_2(flex_sensor_2);
+            flex_sensor_3 = curvefit_3(flex_sensor_3);
+            flex_sensor_4 = curvefit_4(flex_sensor_4);
+            flex_sensor_5 = curvefit_5(flex_sensor_5);
+            
+            //flex_sensor_1 = mapValue(flex_sensor_1, 1000, 2750, 180, 0);
+            //flex_sensor_2 = mapValue(flex_sensor_1, 1000, 2750, 180, 0);
+            //flex_sensor_3 = mapValue(flex_sensor_3, 1000, 1750, 180, 0);
+            //flex_sensor_4 = mapValue(flex_sensor_4, 1000, 1950, 180, 0);
+            //flex_sensor_5 = mapValue(flex_sensor_5, 1000, 2550, 180, 0);
+
+        }
+        
+        int curvefit_1(int x)
+        {
+            x = (int)(x - (batarya * 2.30));
+            int result = (int)((-0.255 * x + 15.03));
+            return result < 0 ? 0 : result;
+            //return result < 0 ? 0 : result;
+        }
+
+        int curvefit_2(int x)
+        {
+            x = (int)(x - (batarya * 2.00));
+            int result = (int)((-0.269 * x + -139.03));
+            return result < 0 ? 0 : result;
+        }
+        int curvefit_3(int x)
+        {
+            x = (int)(x - (batarya * 2.10));
+            int result = (int)(( -0.239 * x + -209.03));
+            return result < 0 ? 0 : result;
+        }
+
+        int curvefit_4(int x)
+        {
+            x = (int)(x - (batarya * 2.10));
+            int result = (int)( -0.310 * x + -148.03);
+            return result < 0 ? 0 : result;
+        }
+
+        int curvefit_5(int x)
+        {
+            x = (int)(x - (batarya * 2.7));
+            int result = (int)(-0.305 * x + -238.00);
+            return result < 0 ? 0 : result;
+        }
+
+
         private void RecordEmgData()
         {
             using (StreamWriter writer = new StreamWriter(filePath))

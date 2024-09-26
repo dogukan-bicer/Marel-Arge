@@ -171,11 +171,11 @@ namespace marel_arge
                     z_eksen = Convert.ToInt32(sensorValues[7]);
                     batarya = Convert.ToInt32(sensorValues[8]);
                     // Flex sensör değerlerini ayır
-                    flex_sensor_2 = Convert.ToInt32(sensorValues[0]);
-                    flex_sensor_5 = Convert.ToInt32(sensorValues[1]);
-                    flex_sensor_3 = Convert.ToInt32(sensorValues[2]);
-                    flex_sensor_4 = Convert.ToInt32(sensorValues[3]);
-                    flex_sensor_1 = Convert.ToInt32(sensorValues[4]);
+                    flex_sensor_1 = Convert.ToInt32(sensorValues[4]);//bas parmak 
+                    flex_sensor_2 = Convert.ToInt32(sensorValues[3]);//isaret parmağı
+                    flex_sensor_3 = Convert.ToInt32(sensorValues[2]);//orta parmagı
+                    flex_sensor_4 = Convert.ToInt32(sensorValues[1]);//yuzuk parmagı
+                    flex_sensor_5 = Convert.ToInt32(sensorValues[0]);//serce parmagı
 
                     update_eldiven_ui();
 

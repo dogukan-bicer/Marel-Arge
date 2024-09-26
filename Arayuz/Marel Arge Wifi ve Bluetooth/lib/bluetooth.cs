@@ -34,6 +34,7 @@ namespace marel_arge
 
             if (deviceInfo_robotik != null)
             {
+                
                 rfcommService_robotik = (await deviceInfo_robotik.GetRfcommServicesForIdAsync(RfcommServiceId.SerialPort)).Services.FirstOrDefault();
 
                 if (rfcommService_robotik != null)
@@ -253,22 +254,24 @@ namespace marel_arge
             Dispatcher.BeginInvoke(new Action(() =>
             {
 
-                flex_sensor_1_label.Content = flex_sensor_2;
-                flex_sensor_2_label.Content = flex_sensor_5;
-                flex_sensor_3_label.Content = flex_sensor_3;
-                flex_sensor_4_label.Content = flex_sensor_4;
-                flex_sensor_5_label.Content = flex_sensor_1;
+                calculate_eldiven_data();
+
+                flex_sensor_1_label.Content = flex_sensor_1 + "°";
+                flex_sensor_2_label.Content = flex_sensor_2 + "°";
+                flex_sensor_3_label.Content = flex_sensor_3 + "°";
+                flex_sensor_4_label.Content = flex_sensor_4 + "°";
+                flex_sensor_5_label.Content = flex_sensor_5 + "°";
 
                 x_eksen_label.Content = x_eksen;
                 y_eksen_label.Content = y_eksen;
                 z_eksen_label.Content = z_eksen;
                 pil_seviyesi_label.Content = batarya;
 
-                flex_sensor_1_label.Foreground = flex_sensor_2 > 1800 ? Brushes.Green : Brushes.White;
-                flex_sensor_2_label.Foreground = flex_sensor_5 > 1800 ? Brushes.Green : Brushes.White;
-                flex_sensor_3_label.Foreground = flex_sensor_3 > 1800 ? Brushes.Green : Brushes.White;
-                flex_sensor_4_label.Foreground = flex_sensor_4 > 1800 ? Brushes.Green : Brushes.White;
-                flex_sensor_5_label.Foreground = flex_sensor_1 > 1800 ? Brushes.Green : Brushes.White;
+                flex_sensor_1_label.Foreground = flex_sensor_1 > 90 ? Brushes.Green : Brushes.White;
+                flex_sensor_2_label.Foreground = flex_sensor_2 > 90 ? Brushes.Green : Brushes.White;
+                flex_sensor_3_label.Foreground = flex_sensor_3 > 90 ? Brushes.Green : Brushes.White;
+                flex_sensor_4_label.Foreground = flex_sensor_4 > 90 ? Brushes.Green : Brushes.White;
+                flex_sensor_5_label.Foreground = flex_sensor_5 > 90 ? Brushes.Green : Brushes.White;
 
             }));
         }
@@ -320,11 +323,11 @@ namespace marel_arge
                             z_eksen = Convert.ToInt32(sensorValues[7]);
                             batarya = Convert.ToInt32(sensorValues[8]);
 
-                            flex_sensor_2 = Convert.ToInt32(sensorValues[0]);
-                            flex_sensor_5 = Convert.ToInt32(sensorValues[1]);
-                            flex_sensor_3 = Convert.ToInt32(sensorValues[2]);
-                            flex_sensor_4 = Convert.ToInt32(sensorValues[3]);
-                            flex_sensor_1 = Convert.ToInt32(sensorValues[4]);
+                            flex_sensor_1 = Convert.ToInt32(sensorValues[4]);//bas parmak 
+                            flex_sensor_2 = Convert.ToInt32(sensorValues[3]);//isaret parmağı
+                            flex_sensor_3 = Convert.ToInt32(sensorValues[2]);//orta parmagı
+                            flex_sensor_4 = Convert.ToInt32(sensorValues[1]);//yuzuk parmagı
+                            flex_sensor_5 = Convert.ToInt32(sensorValues[0]);//serce parmagı
 
                             update_eldiven_ui();
                         }

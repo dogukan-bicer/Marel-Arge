@@ -486,11 +486,11 @@ namespace marel_arge
 
         private async void eldiven_ayarla_1(object sender, RoutedEventArgs e)
         {
-            flex_sensor_1 = flex_sensor_1 > 1800 ? 0 : 255;
-            flex_sensor_2 = flex_sensor_2 > 1800 ? 0 : 255;
-            flex_sensor_3 = flex_sensor_3 > 1800 ? 0 : 255;
-            flex_sensor_4 = flex_sensor_4 > 1800 ? 0 : 255;
-            flex_sensor_5 = flex_sensor_5 > 1800 ? 0 : 255;
+            flex_sensor_1 = flex_sensor_1 > 90 ? 0 : 255;
+            flex_sensor_2 = flex_sensor_2 > 90 ? 0 : 255;
+            flex_sensor_3 = flex_sensor_3 > 90 ? 0 : 255;
+            flex_sensor_4 = flex_sensor_4 > 90 ? 0 : 255;
+            flex_sensor_5 = flex_sensor_5 > 90 ? 0 : 255;
 
             await EldivendenGonder(flex_sensor_1, flex_sensor_2, flex_sensor_3, flex_sensor_4, flex_sensor_5);
         }
