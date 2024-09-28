@@ -9,7 +9,6 @@
 #include <BLEServer.h>
 
 #define wifi_or_bluetooth_pin 2
-#define dokunma_esigi 10
 
 #define mavi_led 17
 #define kirmizi_led 12
@@ -25,11 +24,11 @@ const int freq = 1000;
 const int ledChannel = 0;
 const int resolution = 8;
 
-const int parmak_1b = 33;
+const int parmak_1b = 14;
 const int parmak_2is = 25;
 const int parmak_3or = 26;
 const int parmak_4yz = 27;
-const int parmak_5sr = 14;
+const int parmak_5sr = 33;
 
 const int poz_fb_1 = 36;
 const int poz_fb_2 = 39;
@@ -112,6 +111,11 @@ void setup() {
   ledcAttachPin(parmak_4yz, pwm_kanal_4);
   ledcAttachPin(parmak_5sr, pwm_kanal_5);
 
+  ledcWrite(pwm_kanal_1, 255);
+  ledcWrite(pwm_kanal_2, 255);
+  ledcWrite(pwm_kanal_3, 255);
+  ledcWrite(pwm_kanal_4, 255);
+  ledcWrite(pwm_kanal_5, 255);
   ledcWrite(ledChannel, 0);
 
   // Pin durumuna göre wifi yada bluetootha bağlan
@@ -279,7 +283,7 @@ void robotik_bluetooth_handler(void *parameter) {
         ledcWrite(pwm_kanal_3, parmak_3or_pwm);
         ledcWrite(pwm_kanal_4, parmak_4yz_pwm);
         ledcWrite(pwm_kanal_5, parmak_5sr_pwm);
-        ledcWrite(ledChannel, parmak_1b_pwm);
+        ledcWrite(ledChannel, (255-parmak_1b_pwm));
       } else {
         Serial.println("Geçersiz veri formatı");
       }
@@ -364,7 +368,7 @@ void robotik_wifi_handler(void *parameter) {
         ledcWrite(pwm_kanal_3, parmak_3or_pwm);
         ledcWrite(pwm_kanal_4, parmak_4yz_pwm);
         ledcWrite(pwm_kanal_5, parmak_5sr_pwm);
-        ledcWrite(ledChannel, parmak_1b_pwm);
+        ledcWrite(ledChannel, (255-parmak_1b_pwm));
       }
     }
     vTaskDelay(1);
