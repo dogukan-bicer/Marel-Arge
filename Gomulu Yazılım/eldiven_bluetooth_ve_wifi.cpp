@@ -134,7 +134,7 @@ void bluetoothTask(void *pvParameters) {
     SerialBT.println(Eldiven_data);
     toggle2 = !toggle2;
     Serial.println("bluetooth giden=" + Eldiven_data); 
-    vTaskDelay(pdMS_TO_TICKS(1000)); // Delay for 350 milliseconds
+    vTaskDelay(pdMS_TO_TICKS(350)); // Delay for 350 milliseconds
   }
 }
 
@@ -166,11 +166,11 @@ void sensorTask(void *pvParameters) {
       readings_4[i] = analogRead(flex_4);
       readings_5[i] = analogRead(flex_5);
       readings_6[i] = analogRead(bat_v);
-      vTaskDelay(pdMS_TO_TICKS(49));  // Her okuma arasında biraz bekle
+      vTaskDelay(pdMS_TO_TICKS(25));  // Her okuma arasında biraz bekle
     }
 
       new_time = millis();
-      if (new_time - old_time > 999) {
+      if (new_time - old_time > 300) {
 
         bno055_read_euler_hrp(&myEulerData); //Update Euler data into the structure
         x_eksen = int(myEulerData.h) / 16;
@@ -249,7 +249,7 @@ void dataSendTask(void *pvParameters) {
       udp.println(Eldiven_data);
       udp.endPacket();
       Serial.println("udp giden=" + Eldiven_data); 
-      vTaskDelay(pdMS_TO_TICKS(999)); // Delay for 350 milliseconds
+      vTaskDelay(pdMS_TO_TICKS(350)); // Delay for 350 milliseconds
   }
 }
 
