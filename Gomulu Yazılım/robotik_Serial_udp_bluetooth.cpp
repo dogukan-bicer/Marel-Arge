@@ -245,13 +245,9 @@ void robotik_bluetooth_handler(void *parameter) {
       Serial.println(Robotik_data);
       old_time2 = new_time;
     }
-
-
-
-
      // Seri port üzerinden gelen mesajları bekleyin
     if (Serial.available()) {
-      Serial.println("Bluetooth mesajı alındı");
+      Serial.println("Seri port mesajı alındı");
       int index = 0;
 
       // Diziyi temizle
@@ -385,14 +381,10 @@ void robotik_wifi_handler(void *parameter) {
       udp.endPacket();
       Serial.println(Robotik_data);
     }
-
-
-
  // Seri port üzerinden gelen mesajları bekleyin
     if (Serial.available()) {
-      Serial.println("Bluetooth mesajı alındı");
+      Serial.println("Seri port mesajı alındı");
       int index = 0;
-
       // Diziyi temizle
       memset(serial_paketi, 0, sizeof(serial_paketi));
 
