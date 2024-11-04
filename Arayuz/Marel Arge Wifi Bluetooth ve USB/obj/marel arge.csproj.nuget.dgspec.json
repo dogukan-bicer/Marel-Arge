@@ -34,6 +34,10 @@
       "frameworks": {
         "net472": {
           "dependencies": {
+            "Microsoft.ML": {
+              "target": "Package",
+              "version": "[3.0.1, )"
+            },
             "Microsoft.Windows.SDK.Contracts": {
               "target": "Package",
               "version": "[10.0.19041.1, )"
