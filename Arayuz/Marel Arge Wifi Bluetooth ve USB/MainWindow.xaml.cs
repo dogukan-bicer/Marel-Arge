@@ -9,6 +9,8 @@ using System.Threading;
 using System.Windows.Threading;
 using System.Net.Sockets;
 using System.Net;
+using System.Linq;
+using static marel_arge.MainWindow;
 
 namespace marel_arge
 {
@@ -73,7 +75,7 @@ namespace marel_arge
 
         bool emg_enable = false;
 
-        int esik;
+        int esik,esik2;
 
         bool emg_detect_1 = false;
 
@@ -81,12 +83,15 @@ namespace marel_arge
 
         private DispatcherTimer timer,timer_emg_motion;
 
-        const int emg_rec_sample = 1000;
+        const int emg_rec_sample = 400;
 
-        List<int> emgrecdata = new List<int>();
-        List<int> emgrecdata2 = new List<int>();
+        List<float> emgrecdata = new List<float>();
+        List<float> emgrecdata2 = new List<float>();
 
-        const int ornek_sayisi = 50;
+        List<bool> emgrecdata_label = new List<bool>();
+        List<bool> emgrecdata2_label = new List<bool>();
+
+        const int ornek_sayisi = 20;
 
         public UdpClient client_robotik;
         public UdpClient client_eldiven;
@@ -110,6 +115,7 @@ namespace marel_arge
         public DateTime lastDataReceivedTime_udp_robotik;
         public DateTime lastDataReceivedTime_udp_eldiven;
 
+        bool isDarkMode;
         private void wifi_konfigurasyon_menu(object sender, RoutedEventArgs e)
         {
             if (serialport_status)
@@ -141,12 +147,29 @@ namespace marel_arge
             timer_emg_motion = new DispatcherTimer();
             timer_emg_motion.Interval = TimeSpan.FromMilliseconds(5500); // Her 5 saniyede bir
             timer_emg_motion.Tick += Timer_Tick_emg; // Emg Timer'ın tetikleyicisini ayarla
+
+            isDarkMode = Koyumod_UI.ShouldSystemUseDarkMode();
+
+            try
+            {
+                // Modeli yükle
+                trainedModel = mlContext.Model.Load("emg_model.zip", out var modelInputSchema);
+                ///
+            }
+            catch {
+                //MessageBox.Show("Makine modeli açılamadı");
+            }
+
+
+
+
         }
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
-            LoadCheckBoxStates();
+            LoadStates();
             Koyumod_UI.temayı_degistir(this);
             sunucu_durum.Foreground = Brushes.Red;
+            emg_enable = (bool)emg_hareket_tespit_checkbox.IsChecked;
         }
 
 
@@ -233,6 +256,28 @@ namespace marel_arge
                 bluetooth_checkbox.IsChecked = false;
                 wifi_checkbox.IsChecked = false;
             }
+        }
+
+        private void Emg2_esik_textbox_(object sender, TextChangedEventArgs e)
+        {
+            try
+            {
+                katsayi2 = esik2 = int.Parse(Emg2_esik_textbox.Text);
+                katsayi2 /= 100;
+            }
+            catch
+            {
+                esik2 = 0;
+                Emg2_esik_textbox.Text = "0";
+            }
+        }
+
+        private void makineye_ogret(object sender, RoutedEventArgs e)
+        {
+            //MessageBoxResult result = MessageBox.Show("Bu model hareket tespiti için mi eğitilsin?", "Onay", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            //ml_train_ismotiondetected = (result == MessageBoxResult.Yes) ? true : false;
+            Cursor = Cursors.Wait;
+            machine_learn_active = true;
         }
 
         private void wifi_checkbox_Click(object sender, RoutedEventArgs e)
@@ -325,13 +370,13 @@ namespace marel_arge
 
                     await Task.WhenAll(tasks);
                     this.Cursor = null;
-                }
+            }
                 catch (Exception ex)
                 {
-                    this.Cursor = null;
-                    MessageBox.Show("Bluetooth bağlantı Hatası :" + ex.Message);
-                }
+                this.Cursor = null;
+                MessageBox.Show("Bluetooth bağlantı Hatası :" + ex.Message);
             }
+        }
             else if(wifi_select)//udp ye baglan
             {
                 if (!IsConnectedToSSID(targetSSID))
@@ -374,6 +419,7 @@ namespace marel_arge
                         sunucu_durum.Foreground = Brushes.Red;
                         pwm_Ayari.IsEnabled = false;
                         Tum_pwm.IsEnabled = false;
+                        makine_ogrenmesi_buton.IsEnabled = false;
                         MessageBox.Show("Cihaz Bağlı Değil: " + ex.Message);
                     }
 
@@ -424,7 +470,7 @@ namespace marel_arge
                 el_tekrar_buton.IsEnabled = true;
                 eldiven_ayarla.IsEnabled = true;
                 emg_kayit_buton.IsEnabled = true;
-
+                makine_ogrenmesi_buton.IsEnabled = true;
                 sunucu_durum.Foreground = Brushes.Green;
 
                 this.Cursor = null;
@@ -435,7 +481,8 @@ namespace marel_arge
         {
             try
             {
-                esik = int.Parse(Emg_esik_textbox.Text);
+                katsayi = esik = int.Parse(Emg_esik_textbox.Text);
+                katsayi = katsayi / 100;
             }
             catch
             {

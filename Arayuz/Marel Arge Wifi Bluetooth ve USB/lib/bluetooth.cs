@@ -31,49 +31,82 @@ namespace marel_arge
         int bytesRead_bluetooth = 0;
         async Task bluetooth_robotik_baglan()
         {
-            var deviceInfo_robotik = await FindBluetoothDeviceAsync("Marel Robotik");
-
-            if (deviceInfo_robotik != null)
+            try
             {
-                
-                rfcommService_robotik = (await deviceInfo_robotik.GetRfcommServicesForIdAsync(RfcommServiceId.SerialPort)).Services.FirstOrDefault();
-
-                if (rfcommService_robotik != null)
+                // Eğer Bluetooth bağlantısı önceden yapıldıysa mevcut bağlantıyı kapat
+                if (isBluetoothConnected_robotik)
                 {
-                    bluetoothSocket_robotik = new StreamSocket();
+                    if (bluetoothSocket_robotik != null)
+                    {
+                        bluetoothSocket_robotik.Dispose();
+                        bluetoothSocket_robotik = null;
+                    }
 
-                    await bluetoothSocket_robotik.ConnectAsync(rfcommService_robotik.ConnectionHostName, rfcommService_robotik.ConnectionServiceName);
+                    if (bluetoothStream_robotik_write != null)
+                    {
+                        bluetoothStream_robotik_write.Dispose();
+                        bluetoothStream_robotik_write = null;
+                    }
 
-                    bluetoothStream_robotik_write = bluetoothSocket_robotik.OutputStream.AsStreamForWrite();
-                    bluetoothStream_robotik_read = bluetoothSocket_robotik.InputStream.AsStreamForRead();
+                    if (bluetoothStream_robotik_read != null)
+                    {
+                        bluetoothStream_robotik_read.Dispose();
+                        bluetoothStream_robotik_read = null;
+                    }
 
-                    isBluetoothConnected_robotik = true;
-                    connect_status = true;
+                    isBluetoothConnected_robotik = false;
+                    connect_status = false;
+                }
 
-                    robotik_connected_ui();
+                // Yeni cihaz bağlantısını başlat
+                var deviceInfo_robotik = await FindBluetoothDeviceAsync("Marel Robotik");
 
-                    bluetooth_baglanti_kontrol_ui();
+                if (deviceInfo_robotik != null)
+                {
+                    rfcommService_robotik = (await deviceInfo_robotik.GetRfcommServicesForIdAsync(RfcommServiceId.SerialPort)).Services.FirstOrDefault();
 
-                    await Bluetooth_SendDataAsync("255_255_255_255_255");//robotiği sıfırla
+                    if (rfcommService_robotik != null)
+                    {
+                        bluetoothSocket_robotik = new StreamSocket();
 
-                    //bluetoothStream_robotik_read.BeginRead(buffer_bluetooth, 0, buffer_bluetooth.Length, BluetoothReadCallback, buffer_bluetooth);
+                        // Bağlantıyı gerçekleştir
+                        await bluetoothSocket_robotik.ConnectAsync(rfcommService_robotik.ConnectionHostName, rfcommService_robotik.ConnectionServiceName);
 
-                    await BluetoothReadCallback();
+                        bluetoothStream_robotik_write = bluetoothSocket_robotik.OutputStream.AsStreamForWrite();
+                        bluetoothStream_robotik_read = bluetoothSocket_robotik.InputStream.AsStreamForRead();
 
+                        isBluetoothConnected_robotik = true;
+                        connect_status = true;
+
+                        // UI ile bağlantıyı senkronize et
+                        robotik_connected_ui();
+                        bluetooth_baglanti_kontrol_ui();
+
+                        // Robotiği sıfırlamak için komut gönder
+                        await Bluetooth_SendDataAsync("253_253_253_253_253");
+
+                        // Verileri okumaya başla
+                        await BluetoothReadCallback();
+                    }
+                    else
+                    {
+                        MessageBox.Show("Cihazda seri port servisi bulunamadı.");
+                    }
                 }
                 else
                 {
-                    MessageBox.Show("Cihazda seri port servisi bulunamadı.");
+                    MessageBox.Show("Bluetooth cihazı Marel Robotik bulunamadı veya eşleştirilmedi.");
                 }
             }
-            else
+            catch (Exception ex)
             {
-                MessageBox.Show("Bluetooth cihazı Marel Robotik bulunamadı veya eşleştirilmedi.");
+                MessageBox.Show($"Bluetooth bağlantı hatası: {ex.Message}");
             }
         }
 
 
-            
+
+
         private async Task BluetoothReadCallback()
         {
             while (isBluetoothConnected_robotik)
@@ -146,39 +179,75 @@ namespace marel_arge
 
         async Task bluetooth_eldiven_baglan()
         {
-            var deviceInfo_eldiven = await FindBluetoothDeviceAsync("Marel Eldiven");
-
-            if (deviceInfo_eldiven != null)
-            {
-                rfcommService_eldiven = (await deviceInfo_eldiven.GetRfcommServicesForIdAsync(RfcommServiceId.SerialPort)).Services.FirstOrDefault();
-
-                if (rfcommService_eldiven != null)
+            //try
+            //{
+                // Eğer Bluetooth bağlantısı önceden yapıldıysa mevcut bağlantıyı kapat
+                if (isBluetoothConnected_eldiven)
                 {
-                    bluetoothSocket_eldiven = new StreamSocket();
-                    await bluetoothSocket_eldiven.ConnectAsync(rfcommService_eldiven.ConnectionHostName, rfcommService_eldiven.ConnectionServiceName);
+                    if (bluetoothSocket_eldiven != null)
+                    {
+                        bluetoothSocket_eldiven.Dispose();
+                        bluetoothSocket_eldiven = null;
+                    }
 
-                    bluetoothStream_eldiven_read= bluetoothSocket_eldiven.InputStream.AsStreamForRead();
-                    bluetoothStream_eldiven_write= bluetoothSocket_eldiven.OutputStream.AsStreamForWrite();
+                    if (bluetoothStream_eldiven_write != null)
+                    {
+                        bluetoothStream_eldiven_write.Dispose();
+                        bluetoothStream_eldiven_write = null;
+                    }
 
-                    isBluetoothConnected_eldiven = true;
-                    connect_status = true;
-                    
+                    if (bluetoothStream_eldiven_read != null)
+                    {
+                        bluetoothStream_eldiven_read.Dispose();
+                        bluetoothStream_eldiven_read = null;
+                    }
 
-                    bluetooth_baglanti_kontrol_ui();
+                    isBluetoothConnected_eldiven = false;
+                    connect_status = false;
+                }
 
-                   await Bluetooth_ReceiveCallback_Eldiven();
+                // Yeni cihaz bağlantısını başlat
+                var deviceInfo_eldiven = await FindBluetoothDeviceAsync("Marel Eldiven");
 
+                if (deviceInfo_eldiven != null)
+                {
+                    rfcommService_eldiven = (await deviceInfo_eldiven.GetRfcommServicesForIdAsync(RfcommServiceId.SerialPort)).Services.FirstOrDefault();
+
+                    if (rfcommService_eldiven != null)
+                    {
+                        bluetoothSocket_eldiven = new StreamSocket();
+
+                        // Bağlantıyı gerçekleştir
+                        await bluetoothSocket_eldiven.ConnectAsync(rfcommService_eldiven.ConnectionHostName, rfcommService_eldiven.ConnectionServiceName);
+
+                        bluetoothStream_eldiven_read = bluetoothSocket_eldiven.InputStream.AsStreamForRead();
+                        bluetoothStream_eldiven_write = bluetoothSocket_eldiven.OutputStream.AsStreamForWrite();
+
+                        isBluetoothConnected_eldiven = true;
+                        connect_status = true;
+
+                        // UI ile bağlantıyı senkronize et
+                        bluetooth_baglanti_kontrol_ui();
+
+                        // Verileri okumaya başla
+                        await Bluetooth_ReceiveCallback_Eldiven();
+                    }
+                    else
+                    {
+                        MessageBox.Show("Cihazda seri port servisi bulunamadı.");
+                    }
                 }
                 else
                 {
-                    MessageBox.Show("Cihazda seri port servisi bulunamadı.");
+                    MessageBox.Show("Bluetooth cihazı Marel Eldiven bulunamadı veya eşleştirilmedi.");
                 }
-            }
-            else
-            {
-                MessageBox.Show("Bluetooth cihazı Marel Eldiven bulunamadı veya eşleştirilmedi.");
-            }
+            //}
+            //catch (Exception ex)
+            //{
+            //    MessageBox.Show($"Bluetooth bağlantı hatası: {ex.Message}");
+            //}
         }
+
 
         private async Task<BluetoothDevice> FindBluetoothDeviceAsync(string deviceName)
         {
@@ -233,10 +302,12 @@ namespace marel_arge
                 if (isBluetoothConnected_robotik)
                 {
                     bluetoothStream_robotik_write.Write(data, 0, data.Length);
+                    bluetoothStream_robotik_write.Flush();
                 }
                 else if (isBluetoothConnected_eldiven)
                 {
                     bluetoothStream_eldiven_write.Write(data, 0, data.Length);
+                    bluetoothStream_robotik_write.Flush();
                 }
             }
             catch (Exception ex)
@@ -278,6 +349,7 @@ namespace marel_arge
             {
                 pwm_Ayari.IsEnabled = false;
                 Tum_pwm.IsEnabled = false;
+                makine_ogrenmesi_buton.IsEnabled = false;
                 el_tekrar_buton.IsEnabled = false;
                 eldiven_ayarla.IsEnabled = false;
                 emg_kayit_buton.IsEnabled = false;

@@ -129,6 +129,7 @@ namespace marel_arge
             catch{}
         }
 
+
         private static void arayuz_birlesenlerini_guncelle(Window window)
         {
             bool isDarkMode = Koyumod_UI.ShouldSystemUseDarkMode();

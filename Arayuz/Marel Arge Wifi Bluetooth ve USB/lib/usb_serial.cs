@@ -73,15 +73,11 @@ namespace marel_arge
         {
             try
             {
-
-
-
-
                 string receivedMessage = await Task.Run(() => serialPort.ReadLine());
                 if (receivedMessage.StartsWith("Em="))
                 {
                     // EMG verilerini işleme işlemi önceliklidir
-                    ProcessEmgData_udp(receivedMessage);
+                    ProcessEmgData_usb(receivedMessage);
                 }
                 else if (receivedMessage.StartsWith("Ro="))
                 {
@@ -109,6 +105,41 @@ namespace marel_arge
             serce_parmak = Convert.ToInt32(parmaklar[4]);
 
             UpdateParmakUI(parmaklar[0], parmaklar[1], parmaklar[2], parmaklar[3], parmaklar[4]);
+        }
+
+        private void ProcessEmgData_usb(string receivedMessage)
+        {
+            try
+            {
+                int index = receivedMessage.IndexOf('=') + 1;
+                string emgString = receivedMessage.Substring(index);
+                string[] emgverisi = emgString.Split('>');
+
+                emg_data = Convert.ToInt32(emgverisi[0]);
+                emg_data2 = Convert.ToInt32(emgverisi[1]);
+
+                
+
+                UpdateEmgUI(emgverisi[0], emgverisi[1]);
+
+                if (emg_record)
+                {
+                    RecordEmgData();
+                }
+
+                if (machine_learn_active)
+                {
+                    //ml_train_start(ml_train_ismotiondetected);
+                }
+
+               
+
+                usb_emg_calculate();
+            }
+            catch (FormatException formatEx)
+            {
+                Console.WriteLine($"EMG Data Format Exception: {formatEx.Message}");
+            }
         }
 
     }
