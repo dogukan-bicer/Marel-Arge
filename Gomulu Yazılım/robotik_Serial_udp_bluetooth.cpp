@@ -112,13 +112,6 @@ void setup() {
   ledcAttachPin(parmak_4yz, pwm_kanal_4);
   ledcAttachPin(parmak_5sr, pwm_kanal_5);
 
-  ledcWrite(pwm_kanal_1, 255);
-  ledcWrite(pwm_kanal_2, 255);
-  ledcWrite(pwm_kanal_3, 255);
-  ledcWrite(pwm_kanal_4, 255);
-  ledcWrite(pwm_kanal_5, 255);
-  ledcWrite(ledChannel, 0);
-
   // Pin durumuna göre wifi yada bluetootha bağlan
   if (digitalRead(wifi_or_bluetooth_pin)==0) {
     EEPROM.begin(EEPROM_SIZE);
@@ -180,6 +173,14 @@ void setup() {
 
       Serial.println("Bluetooth Baglandi");
   }
+
+  ledcWrite(pwm_kanal_1, 250);
+  ledcWrite(pwm_kanal_2, 250);
+  ledcWrite(pwm_kanal_3, 250);
+  ledcWrite(pwm_kanal_4, 250);
+  ledcWrite(pwm_kanal_5, 250);
+  ledcWrite(ledChannel, 0);
+  //butun parmaklara kapalı sinyalini gonder
 }
 
 void loop() {
@@ -230,7 +231,7 @@ void robotik_bluetooth_handler(void *parameter) {
       old_time = new_time;
     }
 
-    if (new_time - old_time2 > 350) {
+    if (new_time - old_time2 > 20) {
       // İstemci adresini alın
       parmak_1b_analog = analogRead(poz_fb_1);
       parmak_2is_analog = analogRead(poz_fb_2);
@@ -361,7 +362,7 @@ void robotik_wifi_handler(void *parameter) {
 
       old_time = new_time;
     }
-    if (new_time - old_time2 > 350) {
+    if (new_time - old_time2 > 20) {
       old_time2 = new_time;
       // İstemci adresini alın
       parmak_1b_analog = analogRead(poz_fb_1);
