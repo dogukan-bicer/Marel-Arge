@@ -119,8 +119,8 @@ void setup() {
   }
 
   // FreeRTOS tasks
-  xTaskCreate(bluetoothTask, "Bluetooth Task", 4096, NULL, 10, &bluetoothTaskHandle);//en öncelikli gorev
-  xTaskCreate(sensorTask, "Sensor Task", 4096, NULL, 5, &sensorTaskHandle);
+  xTaskCreate(bluetoothTask, "Bluetooth Task", 4096, NULL, 6, &bluetoothTaskHandle);//en öncelikli gorev
+  xTaskCreate(sensorTask, "Sensor Task", 4096, NULL, 7, &sensorTaskHandle);
   xTaskCreate(bluetoothReadTask, "Bluetooth Read Task", 4096, NULL, 4, &bluetoothReadHandle);
 }
 
@@ -407,7 +407,7 @@ void connectToWifi(const String &ssid, const String &password) {
         //FreeRTOS task
         xTaskCreate(dataSendTask, "Data Send Task", 4096, NULL, 3, &dataSendTaskHandle);
         xTaskCreate(wifiTask, "WiFi Task", 4096, NULL, 1, &wifiTaskHandle);
-        xTaskCreate(ledTask, "LED Task", 4096, NULL, 3, &ledTaskHandle);
+        xTaskCreate(ledTask, "LED Task", 4096, NULL, 2, &ledTaskHandle);
       } else {
         Serial.println("UDP sunucusu başlatılamadı");
         while (1); // Durdur ve hata durumunda döngüye gir
