@@ -30,6 +30,7 @@ const int flex_5 = 32;
 const int bat_v = 33;
 
 const int wifibaglantisuresi = 5000;
+const int wifibaglantisuresi_altsinir =3500;
 
 int flex_analog_1_old,flex_analog_2_old,flex_analog_3_old,
 flex_analog_4_old,flex_analog_5_old;
@@ -392,7 +393,7 @@ void connectToWifi(const String &ssid, const String &password) {
       Serial.print(".");
 
       // UART üzerinden yeni SSID ve şifre almayı kontrol et
-      if (Serial.available()) {
+      if (Serial.available() && millis() - startAttemptTime > wifibaglantisuresi_altsinir) {
         waitForCredentials(); // Yeni kimlik bilgilerini bekle
       }
     }
