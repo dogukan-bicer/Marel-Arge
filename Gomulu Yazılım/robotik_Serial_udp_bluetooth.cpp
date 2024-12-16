@@ -112,6 +112,14 @@ void setup() {
   ledcAttachPin(parmak_4yz, pwm_kanal_4);
   ledcAttachPin(parmak_5sr, pwm_kanal_5);
 
+  ledcWrite(pwm_kanal_1, 250);
+  ledcWrite(pwm_kanal_2, 250);
+  ledcWrite(pwm_kanal_3, 250);
+  ledcWrite(pwm_kanal_4, 250);
+  ledcWrite(pwm_kanal_5, 250);
+  ledcWrite(ledChannel, 0);
+  //butun parmaklara kapalı sinyalini gonder
+
   // Pin durumuna göre wifi yada bluetootha bağlan
   if (digitalRead(wifi_or_bluetooth_pin)==0) {
     EEPROM.begin(EEPROM_SIZE);
@@ -173,14 +181,6 @@ void setup() {
 
       Serial.println("Bluetooth Baglandi");
   }
-
-  ledcWrite(pwm_kanal_1, 250);
-  ledcWrite(pwm_kanal_2, 250);
-  ledcWrite(pwm_kanal_3, 250);
-  ledcWrite(pwm_kanal_4, 250);
-  ledcWrite(pwm_kanal_5, 250);
-  ledcWrite(ledChannel, 0);
-  //butun parmaklara kapalı sinyalini gonder
 }
 
 void loop() {
@@ -223,10 +223,6 @@ void robotik_bluetooth_handler(void *parameter) {
       if (digitalRead(wifi_or_bluetooth_pin)==0) {
         Serial.println("UDP ye geçiyor..");
         ESP.restart();
-      }
-      // UART üzerinden yeni SSID ve şifre almayı kontrol et
-      if (Serial.available()) {
-        waitForCredentials();  // Yeni kimlik bilgilerini bekle
       }
       old_time = new_time;
     }
@@ -354,10 +350,6 @@ void robotik_wifi_handler(void *parameter) {
       if (digitalRead(wifi_or_bluetooth_pin)==1) {
           Serial.println("Bluetoota geçiyor..");
           ESP.restart();
-      }
-      // UART üzerinden yeni SSID ve şifre almayı kontrol et
-      if (Serial.available()) {
-        waitForCredentials();  // Yeni kimlik bilgilerini bekle
       }
 
       old_time = new_time;
