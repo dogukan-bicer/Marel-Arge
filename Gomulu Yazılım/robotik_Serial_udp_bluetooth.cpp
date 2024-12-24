@@ -74,15 +74,18 @@ TaskHandle_t emg_gonder_wifi=NULL;
 TaskHandle_t robotik_wifi=NULL;
 TaskHandle_t robotik_bluetooth=NULL;
 
+bool ads1115_init =false;
+
 void setup() {
   Serial.begin(115200);
   if (!ads.begin()) {
     Serial.println("ADS1115 baslatilamadi.");
-    while (1)
-      ;
+    ads1115_init = false;
+  } else{
+    ads.setGain(GAIN_ONE);  // 1x gain   +/- 4.096V  1 bit = 2mV      0.125mV
+    ads.setDataRate(RATE_ADS1115_860SPS);
+    ads1115_init = true;
   }
-  ads.setGain(GAIN_ONE);  // 1x gain   +/- 4.096V  1 bit = 2mV      0.125mV
-  ads.setDataRate(RATE_ADS1115_860SPS);
 
   Serial.println(".:Marel Arge:.");
   pinMode(12, OUTPUT);
@@ -138,7 +141,8 @@ void setup() {
     }
       ledcAttachPin(mavi_led, ledChannel);
 
-      xTaskCreatePinnedToCore(
+      if(ads1115_init){
+        xTaskCreatePinnedToCore(
         emg_gonder_wifi_handler, /* Görev fonksiyonu. */
         "emg gonder wifi",   /* Görev adı. */
         10000,     /* Yığın boyutu. */
@@ -146,6 +150,7 @@ void setup() {
         1,         /* Görev önceliği. */
         &emg_gonder_wifi,    /* Görev tanıtıcısı. */
         1);    /* Çekirdek. */
+      }
 
       xTaskCreatePinnedToCore(
         robotik_wifi_handler, /* Görev fonksiyonu. */
@@ -161,7 +166,8 @@ void setup() {
 
       ledcAttachPin(kirmizi_led, ledChannel);
 
-      xTaskCreatePinnedToCore(
+      if(ads1115_init){
+        xTaskCreatePinnedToCore(
         emg_gonder_bluetooth_handler, /* Görev fonksiyonu. */
         "emg gonder bluetooth",   /* Görev adı. */
         10000,     /* Yığın boyutu. */
@@ -169,6 +175,7 @@ void setup() {
         1,         /* Görev önceliği. */
         &emg_gonder_bluetooth,    /* Görev tanıtıcısı. */
         1);        /* Çekirdek. */
+      }
 
       xTaskCreatePinnedToCore(
         robotik_bluetooth_handler, /* Görev fonksiyonu. */
