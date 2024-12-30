@@ -2,7 +2,7 @@
 #include <WiFiUdp.h>
 #include <EEPROM.h>
 #include <Wire.h>
-#include <Adafruit_ADS1X15.h>
+#include "ADS1X15.h"
 #include <BluetoothSerial.h>
 #include <BLEDevice.h>
 #include <BLEUtils.h>
@@ -13,7 +13,7 @@
 #define mavi_led 17
 #define kirmizi_led 12
 
-Adafruit_ADS1115 ads;  /* Use this for the 16-bit version */
+ADS1115 ADS(0x48);  // ADS1115 cihaz adresi
 
 uint32_t new_time, old_time, old_time2;
 boolean toggle = false;
@@ -78,12 +78,20 @@ bool ads1115_init =false;
 
 void setup() {
   Serial.begin(115200);
-  if (!ads.begin()) {
+  Wire.begin();
+
+  if (!ADS.begin()) {
     Serial.println("ADS1115 baslatilamadi.");
     ads1115_init = false;
   } else{
-    ads.setGain(GAIN_ONE);  // 1x gain   +/- 4.096V  1 bit = 2mV      0.125mV
-    ads.setDataRate(RATE_ADS1115_860SPS);
+  ADS.begin();
+  ADS.setGain(0);
+  ADS.setDataRate(7);//860sps
+  ADS.setComparatorThresholdHigh(0x8000);
+  ADS.setComparatorThresholdLow(0x0000);
+  ADS.setComparatorQueConvert(0);
+  ADS.setMode(0);
+  ADS.requestADC_Differential_0_1();
     ads1115_init = true;
   }
 
@@ -197,8 +205,10 @@ void loop() {
 void emg_gonder_bluetooth_handler(void *parameter) {
   char buffer[18];  // Yeterince büyük bir buffer ayırın
   for (;;) {
-    emg_analog = ads.readADC_Differential_0_1();
-    emg_analog2 = ads.readADC_Differential_2_3();
+    ADS.requestADC_Differential_0_1();
+    emg_analog = ADS.getValue();
+    ADS.requestADC_Differential_2_3();
+    emg_analog2 = ADS.getValue();
     // String yerine sabit karakter dizisi kullanarak veriyi formatlayın
     snprintf(buffer, sizeof(buffer), "Em=%d>%d", emg_analog, emg_analog2);
     SerialBT.println(buffer);
@@ -208,8 +218,10 @@ void emg_gonder_bluetooth_handler(void *parameter) {
 void emg_gonder_wifi_handler(void *parameter) {
   char buffer[18];  // Yeterince büyük bir buffer ayırın
   for (;;) {
-    emg_analog = ads.readADC_Differential_0_1();
-    emg_analog2 = ads.readADC_Differential_2_3();
+    ADS.requestADC_Differential_0_1();
+    emg_analog = ADS.getValue();
+    ADS.requestADC_Differential_2_3();
+    emg_analog2 = ADS.getValue();
     snprintf(buffer, sizeof(buffer), "Em=%d>%d", emg_analog, emg_analog2);
     IPAddress remoteIp = udp.remoteIP();
     int remotePort = udp.remotePort();
