@@ -12,6 +12,8 @@
 #define numReadings 15  // Okuma sayısı
 bool wifiConnected = false;
 
+const char cihaz_adi[] = "Marel Eldiven Sol";
+
 int readings_1[numReadings];  // Her sensör için okuma dizileri
 int readings_2[numReadings];
 int readings_3[numReadings];
@@ -84,7 +86,7 @@ void setup() {
   pinMode(led_r, OUTPUT);
   pinMode(bat_v, INPUT);
   Serial.begin(115200);
-  SerialBT.begin("Marel Eldiven"); // Bluetooth Serial başlat
+  SerialBT.begin(cihaz_adi); // Bluetooth Serial başlat
   Serial.println(".:Marel Arge:.");
 
   Serial.println("led test basladi");
