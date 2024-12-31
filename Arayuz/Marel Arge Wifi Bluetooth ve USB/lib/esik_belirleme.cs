@@ -20,7 +20,7 @@ namespace marel_arge
         bool hareketAlgilandi = false;//// Hareket algılama
 
 
-        static async Task<float> EşikDeğeriBelirle(int[] veri, int sinyalUzunlukSample)
+        static async Task<float> EşikDeğeriBelirle_async(int[] veri, int sinyalUzunlukSample)
         {
             return await Task.Run(() =>
             {
@@ -30,6 +30,15 @@ namespace marel_arge
 
                 return esikDeger;
             });
+        }
+
+        float EşikDeğeriBelirle(int[] veri, int sinyalUzunlukSample)
+        {
+                // MAD hesaplama
+                float madDeğeri = Mad(veri) * 0.6745f;
+                float esikDeger = madDeğeri * (float)Math.Sqrt(2 * Math.Log10(sinyalUzunlukSample));
+
+                return esikDeger;
         }
 
         bool HareketAlgila(int[] Y_n, float katsayi, float esikDeger)

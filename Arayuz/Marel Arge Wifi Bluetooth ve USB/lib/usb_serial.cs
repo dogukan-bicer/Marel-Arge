@@ -15,7 +15,7 @@ namespace marel_arge
     {
         string cihaz_adi = "USB Serial Port";
         private SerialPort serialPort;
-        bool serialport_status = false;
+        bool isUsbConnected_robotik = false;
 
         public async Task usb_robotik_baglan()
         {
@@ -43,23 +43,24 @@ namespace marel_arge
                                 serialPort.Open();
                                 serialPort.DataReceived += usb_ReceiveCallback_Robotik;
                                 // Eğer cihaz bağlıysa bildirim gönder
-                                serialport_status = true;
+                                isUsbConnected_robotik = true;
                                 sunucu_durum.Content = "USB Bağlandı!";
                                 sunucu_durum.Foreground = Brushes.Green;
-                                serialPort.WriteLine("255_255_255_255_255");
+                                usb_senddata(eller_acik);
                                 robotik_connected_ui();
                             }
                             else
                             {
                                 // Eğer cihaz bağlı değilse
-                                serialport_status = false;
+                                isUsbConnected_robotik = false;
                                 sunucu_durum.Content = "USB Bağlı Değil";
+                                MessageBox.Show("USB Bağlı Değil");
                                 sunucu_durum.Foreground = Brushes.Red;
                             }
                         }
                         catch (Exception ex)
                         {
-                            serialport_status = false;
+                            isUsbConnected_robotik = false;
                             sunucu_durum.Content = "USB Bağlı Değil";
                             sunucu_durum.Foreground = Brushes.Red;
                             MessageBox.Show("Bağlantı hatası:" + ex.Message);
@@ -69,23 +70,50 @@ namespace marel_arge
             });
         }
 
-        private async void usb_ReceiveCallback_Robotik(object sender, SerialDataReceivedEventArgs e)
+        // Sınıfın içinde tanımlayın (usb_ReceiveCallback_Robotik metodunun dışında)
+        private StringBuilder receivedDataBuilder = new StringBuilder();
+        private void usb_ReceiveCallback_Robotik(object sender, SerialDataReceivedEventArgs e)
         {
             try
             {
-                string receivedMessage = await Task.Run(() => serialPort.ReadLine());
-                if (receivedMessage.StartsWith("Em="))
+                lastDataReceivedTime_usb_robotik = DateTime.Now;
+                // Birikmiş veriyi saklamak için bir buffer kullanıyoruz.
+                byte[] buffer = new byte[serialPort.BytesToRead];
+                serialPort.Read(buffer, 0, buffer.Length);
+
+                // Buffer'daki veriyi işlemek için string'e çeviriyoruz.
+                string receivedData = System.Text.Encoding.ASCII.GetString(buffer);
+
+                // Tamamlanmış satırları işlemek için bir StringBuilder kullanıyoruz.
+                receivedDataBuilder.Append(receivedData);
+
+                string[] lines = receivedDataBuilder.ToString().Split(new[] { "\r\n", "\n" }, StringSplitOptions.None);
+
+                for (int i = 0; i < lines.Length - 1; i++)
                 {
-                    // EMG verilerini işleme işlemi önceliklidir
-                    ProcessEmgData_usb(receivedMessage);
+                    string line = lines[i];
+                    if (line.StartsWith("Em="))
+                    {
+                        // EMG verilerini işleme işlemi önceliklidir.
+                        ProcessEmgData_usb(line);
+                    }
+                    else if (line.StartsWith("Ro="))
+                    {
+                        usb_ProcessRobotikData(line);
+                    }
                 }
-                else if (receivedMessage.StartsWith("Ro="))
-                {
-                    usb_ProcessRobotikData(receivedMessage);
-                }
+
+                // Son satır tamamlanmamış olabilir, bu yüzden yeniden biriktiriyoruz.
+                receivedDataBuilder.Clear();
+                receivedDataBuilder.Append(lines[lines.Length - 1]);
             }
-            catch { }
+            catch (Exception ex)
+            {
+                // Hata durumunda log kaydı veya diğer işlemler yapılabilir.
+                Console.WriteLine($"USB Receive Error: {ex.Message}");
+            }
         }
+
 
         public void usb_senddata(string data)
         {
@@ -114,26 +142,17 @@ namespace marel_arge
                 int index = receivedMessage.IndexOf('=') + 1;
                 string emgString = receivedMessage.Substring(index);
                 string[] emgverisi = emgString.Split('>');
-
                 emg_data = Convert.ToInt32(emgverisi[0]);
                 emg_data2 = Convert.ToInt32(emgverisi[1]);
-
-                
-
                 UpdateEmgUI(emgverisi[0], emgverisi[1]);
-
                 if (emg_record)
                 {
                     RecordEmgData();
                 }
-
                 if (machine_learn_active)
                 {
-                    //ml_train_start(ml_train_ismotiondetected);
+                    ml_train_start(emg_detect_1,emg_detect_2);
                 }
-
-               
-
                 usb_emg_calculate();
             }
             catch (FormatException formatEx)
@@ -141,6 +160,5 @@ namespace marel_arge
                 Console.WriteLine($"EMG Data Format Exception: {formatEx.Message}");
             }
         }
-
     }
 }

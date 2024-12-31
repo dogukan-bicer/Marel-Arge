@@ -56,7 +56,7 @@ namespace marel_arge
                 // Sunucuya bağlanın
                 client_robotik.Connect(endPoint_robotik);
 
-                string dataStr = "255_255_255_255_255";
+                string dataStr = eller_acik;
                 byte[] data = Encoding.UTF8.GetBytes(dataStr);
                 // Veriyi sunucuya gönderin
                 client_robotik.Send(data, data.Length);
@@ -145,7 +145,6 @@ namespace marel_arge
         void udp_SendData(string dataStr)
         {
             byte[] data = System.Text.Encoding.ASCII.GetBytes(dataStr);
-            // Veriyi sunucuya gönderin
             client_robotik.Send(data, data.Length);
         }
 
