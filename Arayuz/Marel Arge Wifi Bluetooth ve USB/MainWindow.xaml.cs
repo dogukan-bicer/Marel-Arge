@@ -37,16 +37,14 @@ namespace marel_arge
         }
     }
 
-
-
     public partial class MainWindow : Window
     {
         private bool isBluetoothConnected_robotik = false;
         private bool isBluetoothConnected_eldiven = false;
         public bool isudpconnected_robotik = false;
         public bool isudpconnected_eldiven = false;
-        public bool robotik_select = true;
-        public bool eldiven_select = true;
+        public bool robotik_select = false;
+        public bool eldiven_select = false;
         public bool usb_select = true;
         public bool bluetooth_select = true;
         public bool wifi_select = false;
@@ -58,6 +56,8 @@ namespace marel_arge
         bool udp_eldiven_connect_status, robotik_connect_status = false;
 
         bool emg_record = false;
+
+        bool eldiven_sag, eldiven_sol = false;
 
         double emg1_avg, emg2_avg;
         string receivedMessage;
@@ -81,9 +81,11 @@ namespace marel_arge
 
         bool emg_detect_2 = false;
 
+        bool tetikle_birak, surekli_mod = false;
+
         private DispatcherTimer timer,timer_emg_motion;
 
-        const int emg_rec_sample = 400;
+        const int emg_rec_sample = 600;
 
         List<float> emgrecdata = new List<float>();
         List<float> emgrecdata2 = new List<float>();
@@ -115,10 +117,13 @@ namespace marel_arge
         public DateTime lastDataReceivedTime_udp_robotik;
         public DateTime lastDataReceivedTime_udp_eldiven;
 
+        string eller_acik = "255_255_255_255_255";
+        string eller_kapali = "0_60_30_0_0";
+
         bool isDarkMode;
         private void wifi_konfigurasyon_menu(object sender, RoutedEventArgs e)
         {
-            if (serialport_status)
+            if (isUsbConnected_robotik)
             {
                 serialPort.Close();
             }
@@ -141,7 +146,7 @@ namespace marel_arge
             this.Closing += MainWindow_Closing;
 
             timer = new DispatcherTimer();
-            timer.Interval = TimeSpan.FromMilliseconds(2500); // Her 5 saniyede bir
+            timer.Interval = TimeSpan.FromMilliseconds(3500); // Her 5 saniyede bir
             timer.Tick += Timer_Tick; // Timer'ın tetikleyicisini ayarla
 
             timer_emg_motion = new DispatcherTimer();
@@ -154,15 +159,12 @@ namespace marel_arge
             {
                 // Modeli yükle
                 trainedModel = mlContext.Model.Load("emg_model.zip", out var modelInputSchema);
+                trainedModel2 = mlContext.Model.Load("emg_model_2.zip", out var modelInputSchema2);
                 ///
             }
             catch {
-                //MessageBox.Show("Makine modeli açılamadı");
+                MessageBox.Show("Makine modeli açılamadı");
             }
-
-
-
-
         }
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
@@ -170,10 +172,16 @@ namespace marel_arge
             Koyumod_UI.temayı_degistir(this);
             sunucu_durum.Foreground = Brushes.Red;
             emg_enable = (bool)emg_hareket_tespit_checkbox.IsChecked;
+            tetikle_birak = (bool)tektikle_birak_checkbox.IsChecked;
+            surekli_mod = (bool)Surekli_checkbox.IsChecked;
+            eldiven_select =(bool)eldiven.IsChecked;
+            robotik_select =(bool)robotik.IsChecked;
+            wifi_select = (bool)wifi_checkbox.IsChecked;
+            bluetooth_select = (bool)bluetooth_checkbox.IsChecked;
+            usb_select = (bool)usb_checkbox.IsChecked;
+            eldiven_sag = (bool)eldiven_sag_checkbox.IsChecked;
+            eldiven_sol = (bool)eldiven_sol_checkbox.IsChecked;
         }
-
-
-
         private void Timer_Tick(object sender, EventArgs e)
         {
             Dispatcher.BeginInvoke(new Action(() =>
@@ -226,13 +234,14 @@ namespace marel_arge
                     MessageBox.Show("Wifi Eldiven Cihazının bağlantısı kesildi.");
                 }
 
-                if(serialport_status & usb_select)
+                if(isUsbConnected_robotik & usb_select)
                 {
-                    if (!serialPort.IsOpen)
+                    if (!serialPort.IsOpen || (DateTime.Now - lastDataReceivedTime_usb_robotik).TotalSeconds > 2)
                     {
+                        if(serialPort.IsOpen) { serialPort.Close(); }
                         this.Cursor = null;
                         robotik_connect_status = false;
-                        serialport_status = false;
+                        isUsbConnected_robotik = false;
                         disconnect_robotik_ui();
                         sunucu_durum.Content = "USB Bağlı Değil";
                         sunucu_durum.Foreground = Brushes.Red;
@@ -269,6 +278,46 @@ namespace marel_arge
             {
                 esik2 = 0;
                 Emg2_esik_textbox.Text = "0";
+            }
+        }
+
+        private void tektikle_birak_checkbox_Click(object sender, RoutedEventArgs e)
+        {
+            if((bool)tektikle_birak_checkbox.IsChecked)
+            {
+                tetikle_birak = true;
+                surekli_mod = false;
+                Surekli_checkbox.IsChecked = false;
+            }
+        }
+
+        private void Surekli_checkbox_Click(object sender, RoutedEventArgs e)
+        {
+            if((bool)Surekli_checkbox.IsChecked)
+            {
+                tetikle_birak = false;
+                surekli_mod = true;
+                tektikle_birak_checkbox.IsChecked = false;
+            }
+        }
+
+        private void eldiven_sol_checkbox_Click(object sender, RoutedEventArgs e)
+        {
+            if ((bool)eldiven_sol_checkbox.IsChecked)
+            {
+                eldiven_sol = true;
+                eldiven_sag = false;
+                eldiven_sag_checkbox.IsChecked = false;
+            }
+        }
+
+        private void eldiven_sag_checkbox_Click(object sender, RoutedEventArgs e)
+        {
+            if ((bool)eldiven_sag_checkbox.IsChecked)
+            {
+                eldiven_sag = true;
+                eldiven_sol = false;
+                eldiven_sol_checkbox.IsChecked = false;
             }
         }
 
@@ -352,12 +401,11 @@ namespace marel_arge
         private async void Sunucuya_baglan(object sender, RoutedEventArgs e)
         {
             this.Cursor = Cursors.Wait;
+            this.ForceCursor = true;
             sunucu_baglan_click = true;
             if (bluetooth_select)//bluetootha baglan
             {
                 timer.Start();
-                try
-                {
                     var tasks = new List<Task>();
                     if (robotik_select && !isBluetoothConnected_robotik)
                     {
@@ -367,41 +415,34 @@ namespace marel_arge
                     {
                         tasks.Add(bluetooth_eldiven_baglan());
                     }
-
                     await Task.WhenAll(tasks);
                     this.Cursor = null;
             }
-                catch (Exception ex)
-                {
-                this.Cursor = null;
-                MessageBox.Show("Bluetooth bağlantı Hatası :" + ex.Message);
-            }
-        }
             else if(wifi_select)//udp ye baglan
             {
-                if (!IsConnectedToSSID(targetSSID))
-                {
-                    this.Cursor = null;
-                    MessageBoxResult result = MessageBox.Show($"Cihaz {targetSSID} WiFi ağına bağlı değil!" +
-                        $" Bağlanmak ister misiniz?","Bağlantı Uyarısı",
-                        MessageBoxButton.YesNo, MessageBoxImage.Warning);
-                    if (result == MessageBoxResult.Yes)
-                    {
-                        Cursor = Cursors.Wait;
-                        await Wifibaglan(targetSSID);
-                        await Task.Delay(6000);
-                        if (IsConnectedToSSID(targetSSID))
-                        {
-                            MessageBox.Show($"Bilgisayar {targetSSID} WiFi ağına bağlı!!");
-                        }else
-                        {
-                            MessageBox.Show($"Bilgisayar {targetSSID} WiFi ağına bağlı değil!!");
-                        }
-                        Cursor = null;
-                    }
-                }
-                else
-                {
+                //if (!IsConnectedToSSID(targetSSID))
+                //{
+                //    this.Cursor = null;
+                //    MessageBoxResult result = MessageBox.Show($"Cihaz {targetSSID} WiFi ağına bağlı değil!" +
+                //        $" Bağlanmak ister misiniz?","Bağlantı Uyarısı",
+                //        MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                //    if (result == MessageBoxResult.Yes)
+                //    {
+                //        Cursor = Cursors.Wait;
+                //        await Wifibaglan(targetSSID);
+                //        await Task.Delay(6000);
+                //        if (IsConnectedToSSID(targetSSID))
+                //        {
+                //            MessageBox.Show($"Bilgisayar {targetSSID} WiFi ağına bağlı!!");
+                //        }else
+                //        {
+                //            MessageBox.Show($"Bilgisayar {targetSSID} WiFi ağına bağlı değil!!");
+                //        }
+                //        Cursor = null;
+                //    }
+                //}
+                //else
+                //{
                     this.Cursor = Cursors.Wait;
                     sunucu_baglan_click = true;
                     timer.Start(); // Timer'ı başlat
@@ -420,18 +461,26 @@ namespace marel_arge
                         pwm_Ayari.IsEnabled = false;
                         Tum_pwm.IsEnabled = false;
                         makine_ogrenmesi_buton.IsEnabled = false;
-                        MessageBox.Show("Cihaz Bağlı Değil: " + ex.Message);
+                        emg_kayit.IsEnabled = false;
+                        MessageBox.Show("Cihaz bağlı değil. Marel Donanımı ile Bilgisayarı aynı ağa bağlamayı deneyin: " + ex.Message);
                     }
 
                     await Task.Delay(1000);
 
                     udp_connect_status_update_ui();
-                }
+                //}
             }
             else if(usb_select && !robotik_connect_status)// seri porta baglan
             {
                 timer.Start();
-                await usb_robotik_baglan();
+                if (robotik_select && !isUsbConnected_robotik)
+                {
+                    await usb_robotik_baglan();
+                }
+                if (eldiven_select && !isBluetoothConnected_eldiven)
+                {
+                   await bluetooth_eldiven_baglan();
+                }
             }
             this.Cursor = null;
         }
@@ -471,6 +520,7 @@ namespace marel_arge
                 eldiven_ayarla.IsEnabled = true;
                 emg_kayit_buton.IsEnabled = true;
                 makine_ogrenmesi_buton.IsEnabled = true;
+                emg_kayit.IsEnabled= true;
                 sunucu_durum.Foreground = Brushes.Green;
 
                 this.Cursor = null;
@@ -495,21 +545,30 @@ namespace marel_arge
         {
             
             el_tekrar_buton.Content = "Tekrarlaniyor...";
-            el_tekrar_buton.IsEnabled = false;
+            el_tekrar_buton.Foreground = Brushes.Red;
+            await Dispatcher.BeginInvoke(new Action(() =>
+            {
+                test_label_3.Content = "Robotik Sistem Çalışıyor...";
+                test_label_3.Foreground = Brushes.Red;
+            }));
             for (int i = 0; i < int.Parse(tekrar_sayisi_textbox.Text); i++)
             {
-                string dataStr = "0_0_0_0_0";
-                if (bluetooth_select) { await Bluetooth_SendDataAsync(dataStr); }
-                else if (usb_select) { serialPort.WriteLine(dataStr); }
-                else { udp_SendData(dataStr); }
+                if (bluetooth_select) { await Bluetooth_SendDataAsync(eller_kapali); }
+                else if (usb_select) { usb_senddata(eller_kapali); }
+                else { udp_SendData(eller_kapali); }
                 await Task.Delay(5000);
 
-                dataStr = "255_255_255_255_255";
-                if (bluetooth_select) { await Bluetooth_SendDataAsync(dataStr); }
-                else if (usb_select) { serialPort.WriteLine(dataStr); }
-                else { udp_SendData(dataStr); }
+                if (bluetooth_select) { await Bluetooth_SendDataAsync(eller_acik); }
+                else if (usb_select) { usb_senddata(eller_acik); }
+                else { udp_SendData(eller_acik); }
                 await Task.Delay(5000);
             }
+            await Dispatcher.BeginInvoke(new Action(() =>
+            {
+                test_label_3.Content = "Hareket tamamlandı.";
+                test_label_3.Foreground = isDarkMode ?
+                Brushes.White : Brushes.Black;
+            }));
             el_tekrar_buton.Content = "Tekrarla";
             el_tekrar_buton.IsEnabled = true;
         }
@@ -524,9 +583,9 @@ namespace marel_arge
                 int pwm_val4 = 255 - (int)parmak_4yz_pwm.Value;
                 int pwm_val5 = 255 - (int)parmak_5sr_pwm.Value;
                 string dataStr = $"{pwm_val1}_{pwm_val2}_{pwm_val3}_{pwm_val4}_{pwm_val5}";
-                if (bluetooth_select) { await Bluetooth_SendDataAsync(dataStr); }
-                else if (usb_select) { serialPort.WriteLine(dataStr); }
-                else { udp_SendData(dataStr); }
+                if (bluetooth_select && isBluetoothConnected_robotik) { await Bluetooth_SendDataAsync(dataStr); }
+                else if (usb_select && isUsbConnected_robotik) { usb_senddata(dataStr); }
+                else if (wifi_select && isudpconnected_robotik){ udp_SendData(dataStr); }
             }
             catch (Exception ex)
             {
@@ -539,9 +598,9 @@ namespace marel_arge
             try
             {
                 string dataStr = $"{f1}_{f2}_{f3}_{f4}_{f5}";
-                if (bluetooth_select) { await Bluetooth_SendDataAsync(dataStr); }
-                else if (usb_select) { serialPort.WriteLine(dataStr); }
-                else { udp_SendData(dataStr); }
+                if (isBluetoothConnected_robotik) { await Bluetooth_SendDataAsync(dataStr); }
+                else if (isUsbConnected_robotik) { usb_senddata(dataStr); }
+                else if (isudpconnected_robotik){ udp_SendData(dataStr); }
             }
             catch (Exception ex)
             {
@@ -555,9 +614,9 @@ namespace marel_arge
             {
                 int pwm_value = 255 - (int)pwm_slider.Value;
                 string dataStr = $"{pwm_value}_{pwm_value}_{pwm_value}_{pwm_value}_{pwm_value}";
-                if (bluetooth_select) { await Bluetooth_SendDataAsync(dataStr); }
-                else if (usb_select) { serialPort.WriteLine(dataStr); }
-                else  { udp_SendData(dataStr); }
+                if (bluetooth_select && isBluetoothConnected_robotik) { await Bluetooth_SendDataAsync(dataStr); }
+                else if (usb_select && isUsbConnected_robotik) { usb_senddata(dataStr); }
+                else if (wifi_select && isudpconnected_robotik) { udp_SendData(dataStr); }
             }
             catch (Exception ex)
             {
@@ -583,6 +642,7 @@ namespace marel_arge
         }
 
         bool eldiven_ayarla_clicked=false;
+        const int eldiven_hareket_esigi = 44;
         private async void eldiven_ayarla_1(object sender, RoutedEventArgs e)
         {
             eldiven_ayarla_clicked = !eldiven_ayarla_clicked;
@@ -591,13 +651,14 @@ namespace marel_arge
 
             while (eldiven_ayarla_clicked)
             {
-                int val1 = flex_sensor_1 > 89 ? 0 : 255;
-                int val2 = flex_sensor_2 > 89 ? 0 : 255;
-                int val3 = flex_sensor_3 > 89 ? 0 : 255;
-                int val4 = flex_sensor_4 > 89 ? 0 : 255;
-                int val5 = flex_sensor_5 > 89 ? 0 : 255;
+                // Sensör verilerinin ölçeklenmesi
+                int val1 = mapValue(flex_sensor_1, 0, 90, 255, 0);
+                int val2 = mapValue(flex_sensor_2, 0, 90, 255, 0);
+                int val3 = mapValue(flex_sensor_3, 0, 90, 255, 0);
+                int val4 = mapValue(flex_sensor_4, 0, 90, 255, 0);
+                int val5 = mapValue(flex_sensor_5, 0, 90, 255, 0);
                 await EldivendenGonder(val1, val2, val3, val4, val5);
-                await Task.Delay(450);
+                await Task.Delay(100);
             }
 
         }

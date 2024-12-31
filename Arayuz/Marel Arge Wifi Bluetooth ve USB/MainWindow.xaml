@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:marel_arge"
         mc:Ignorable="d"
         WindowStartupLocation="CenterScreen" x:Name="ana_ekran"
-        Title="Ana Ekran" Height="688" Width="936" MinHeight="688" MinWidth="936" MaxHeight="688" MaxWidth="936" Background="Transparent" Foreground="White" >
+        Title="Ana Ekran" Height="688" Width="936" MinHeight="688" MinWidth="936" Background="Transparent" Foreground="White" >
     <Window.Resources>
 
 
@@ -109,82 +109,89 @@
     <Grid Margin="0,0,0,20">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="0*"/>
-            <ColumnDefinition Width="23*"/>
-            <ColumnDefinition Width="137*"/>
+            <ColumnDefinition Width="0*"/>
+            <ColumnDefinition Width="15*"/>
+            <ColumnDefinition Width="89*"/>
         </Grid.ColumnDefinitions>
-        <Label Content="PWM Değeri:" HorizontalAlignment="Left" Height="38" Margin="22,223,0,0" VerticalAlignment="Top" Width="108" Grid.Column="1" Grid.ColumnSpan="2"/>
-        <Button Name="cihaz_baglan_buton" Content="Cihaza Bağlan" HorizontalAlignment="Left" Height="37" Margin="140,16,0,0" VerticalAlignment="Top" Width="108" Click="Sunucuya_baglan" Grid.Column="2"/>
-        <Image  HorizontalAlignment="Left" Height="148" Margin="531,28,0,0" VerticalAlignment="Top" Width="255" Source="/marel_logo_background.png" Grid.Column="2"/>
-        <Button IsEnabled="false" Content="Ayarla"  HorizontalAlignment="Left" Height="27" Margin="641,443,0,0" VerticalAlignment="Top" Width="107" Click="Pwm_Ayarla" Name="pwm_Ayari" Grid.Column="2"/>
-        <Label Content="Bağlı Değil!" Name="sunucu_durum" Foreground="Red" HorizontalAlignment="Left" Height="38" Margin="22,15,0,0" VerticalAlignment="Top" Width="248" Grid.Column="1" Grid.ColumnSpan="2"/>
-        <Slider Grid.Column="1" Name="pwm_slider" IsSnapToTickEnabled="True" TickFrequency="10" HorizontalAlignment="Left" Margin="22,179,0,0" VerticalAlignment="Top" Width="465" ValueChanged="pwm_slider_ValueChanged" SmallChange="1" Maximum="255" Height="23" Grid.ColumnSpan="2"/>
-        <Label x:Name="pwm_deger" Content="%0" HorizontalAlignment="Left" Height="28" Margin="39,223,0,0" VerticalAlignment="Top" Width="124" Grid.Column="2"/>
-        <Label x:Name="test_label" Content="Bağlanılacak Cihazı Seçin:" HorizontalAlignment="Left" Height="38" Margin="22,68,0,0" VerticalAlignment="Top" Width="296" Grid.Column="1" Grid.ColumnSpan="2"/>
-        <CheckBox Name ="robotik"  Grid.Column="2" Content="Robotik Sistem" HorizontalAlignment="Left" Margin="188,75,0,0" VerticalAlignment="Top" Width="118" IsChecked="True" Click="robotik_Click" />
-        <CheckBox Name ="eldiven"  Grid.Column="2" Content="Eldiven" HorizontalAlignment="Left" Margin="314,75,0,0" VerticalAlignment="Top" Width="136" Click="eldiven_Click" IsChecked="True" />
-        <Slider Name="parmak_1b_pwm" Grid.Column="1"  IsSnapToTickEnabled="True" TickFrequency="10" HorizontalAlignment="Left" Margin="22,281,0,0" VerticalAlignment="Top" Width="465" ValueChanged="pwm_slider_ValueChanged" SmallChange="1" Maximum="255" Height="23" Grid.ColumnSpan="2"/>
-        <Slider Name="parmak_2is_pwm" Grid.Column="1"  IsSnapToTickEnabled="True" TickFrequency="10" HorizontalAlignment="Left" Margin="22,330,0,0" VerticalAlignment="Top" Width="465" ValueChanged="pwm_slider_ValueChanged" SmallChange="1" Maximum="255" Height="23" Grid.ColumnSpan="2"/>
-        <Slider Name="parmak_3or_pwm" Grid.Column="1"  IsSnapToTickEnabled="True" TickFrequency="10" HorizontalAlignment="Left" Margin="22,372,0,0" VerticalAlignment="Top" Width="465" ValueChanged="pwm_slider_ValueChanged" SmallChange="1" Maximum="255" Height="23" Grid.ColumnSpan="2"/>
-        <Slider Name="parmak_4yz_pwm" Grid.Column="1"  IsSnapToTickEnabled="True" TickFrequency="10" HorizontalAlignment="Left" Margin="22,417,0,0" VerticalAlignment="Top" Width="465" ValueChanged="pwm_slider_ValueChanged" SmallChange="1" Maximum="255" Height="23" Grid.ColumnSpan="2"/>
-        <Slider Name="parmak_5sr_pwm"  Grid.Column="1"  IsSnapToTickEnabled="True" TickFrequency="10" HorizontalAlignment="Left" Margin="22,463,0,0" VerticalAlignment="Top" Width="465" ValueChanged="pwm_slider_ValueChanged" SmallChange="1" Maximum="255" Height="23" Grid.ColumnSpan="2"/>
-        <Label Content="Serçe parmak" HorizontalAlignment="Left" Height="30" Margin="398,461,0,0" VerticalAlignment="Top" Width="108" Grid.Column="2"/>
-        <Label Content="Baş parmak" HorizontalAlignment="Left" Height="30" Margin="398,275,0,0" VerticalAlignment="Top" Width="108" Grid.Column="2"/>
-        <Label Content="orta parmak" HorizontalAlignment="Left" Height="30" Margin="398,372,0,0" VerticalAlignment="Top" Width="108" Grid.Column="2"/>
-        <Label Content="yüzük parmağı" HorizontalAlignment="Left" Height="30" Margin="398,414,0,0" VerticalAlignment="Top" Width="108" Grid.Column="2"/>
-        <Label Content="işaret parmağı" HorizontalAlignment="Left" Height="30" Margin="398,323,0,0" VerticalAlignment="Top" Width="108" Grid.Column="2"/>
-        <Button IsEnabled="false" Content="Tümünü Ayarla"  HorizontalAlignment="Left" Height="34" Margin="385,174,0,0" VerticalAlignment="Top" Width="116" Click="Tum_pwm_ayarla" x:Name="Tum_pwm" Grid.Column="2"/>
-        <Label Name="bas_parmak_label" Grid.Column="2" Content="0" HorizontalAlignment="Left" Margin="540,275,0,0" VerticalAlignment="Top"/>
-        <Label x:Name="isaret_parmak_label" Grid.Column="2" Content="0" HorizontalAlignment="Left" Margin="540,325,0,0" VerticalAlignment="Top"/>
-        <Label x:Name="orta_parmak_label" Grid.Column="2" Content="0" HorizontalAlignment="Left" Margin="540,374,0,0" VerticalAlignment="Top"/>
-        <Label x:Name="serce_parmak_label" Grid.Column="2" Content="0" HorizontalAlignment="Left" Margin="540,463,0,0" VerticalAlignment="Top"/>
-        <Label x:Name="yuzuk_parmak_label" Grid.Column="2" Content="0" HorizontalAlignment="Left" Margin="540,416,0,0" VerticalAlignment="Top"/>
-        <Label  Grid.Column="1" Content="Flex Sensör 1" HorizontalAlignment="Center" Margin="0,526,0,0" VerticalAlignment="Top"/>
-        <Label  Grid.Column="2" Content="Flex Sensör 2" HorizontalAlignment="Left" Margin="4,526,0,0" VerticalAlignment="Top" Width="82"/>
-        <Label  Grid.Column="2" Content="Flex Sensör 3" HorizontalAlignment="Left" Margin="101,526,0,0" VerticalAlignment="Top"/>
-        <Label  Grid.Column="2" Content="Flex Sensör 4" HorizontalAlignment="Left" Margin="198,526,0,0" VerticalAlignment="Top"/>
-        <Label  Grid.Column="2" Content="Flex Sensör 5" HorizontalAlignment="Left" Margin="306,526,0,0" VerticalAlignment="Top"/>
-        <Label FontSize="20" x:Name="flex_sensor_1_label" Grid.Column="1" Content="0" HorizontalAlignment="Center" Margin="0,571,0,0" VerticalAlignment="Top" Width="79"/>
-        <Label FontSize="20" x:Name="flex_sensor_2_label" Grid.Column="2" Content="0" HorizontalAlignment="Left" Margin="10,572,0,0" VerticalAlignment="Top" Width="66"/>
-        <Label FontSize="20" x:Name="flex_sensor_3_label" Grid.Column="2" Content="0" HorizontalAlignment="Left" Margin="109,572,0,0" VerticalAlignment="Top" Width="79"/>
-        <Label FontSize="20" x:Name="flex_sensor_4_label" Grid.Column="2" Content="0" HorizontalAlignment="Left" Margin="199,571,0,0" VerticalAlignment="Top" Width="79"/>
-        <Label FontSize="20" x:Name="flex_sensor_5_label" Grid.Column="2" Content="0" HorizontalAlignment="Left" Margin="306,571,0,0" VerticalAlignment="Top" Width="79"/>
-        <Label  Grid.Column="2" Content="X eksen" HorizontalAlignment="Left" Margin="398,526,0,0" VerticalAlignment="Top"/>
-        <Label  Grid.Column="2" Content="Y eksen" HorizontalAlignment="Left" Margin="469,526,0,0" VerticalAlignment="Top"/>
-        <Label  Grid.Column="2" Content="Z eksen" HorizontalAlignment="Left" Margin="540,526,0,0" VerticalAlignment="Top"/>
-        <Label  Grid.Column="2" Content="Pil yüzdesi" HorizontalAlignment="Left" Margin="609,526,0,0" VerticalAlignment="Top"/>
-        <Label FontSize="20" x:Name="x_eksen_label"  Grid.Column="2" Content="0" HorizontalAlignment="Left" Margin="404,571,0,0" VerticalAlignment="Top" Width="49"/>
-        <Label FontSize="20" x:Name="y_eksen_label" Grid.Column="2" Content="0" HorizontalAlignment="Left" Margin="471,571,0,0" VerticalAlignment="Top" Width="49"/>
-        <Label FontSize="20" x:Name="z_eksen_label" Grid.Column="2" Content="0" HorizontalAlignment="Left" Margin="549,571,0,0" VerticalAlignment="Top" Width="49"/>
-        <Label FontSize="20" x:Name="pil_seviyesi_label" Grid.Column="2" Content="0" HorizontalAlignment="Left" Margin="617,571,0,0" VerticalAlignment="Top" Width="83"/>
-        <Label  Grid.Column="2" Content="Emg Verisi 1" Margin="648,250,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Width="88"/>
-        <Button IsEnabled="false" Content="Tekrarla"  HorizontalAlignment="Left" Height="34" Margin="385,223,0,0" VerticalAlignment="Top" Width="116" Click="el_acma_kapama" x:Name="el_tekrar_buton" Grid.Column="2" />
-        <Label   x:Name="emg_data_label" FontSize="20" Grid.Column="2" Content="0" HorizontalAlignment="Left" Margin="672,274,0,0" VerticalAlignment="Top" Width="79"/>
-        <Button IsEnabled="false" Content="Ayna Modu"  HorizontalAlignment="Left" Height="33" Margin="641,480,0,0" VerticalAlignment="Top" Width="107" Click="eldiven_ayarla_1" x:Name="eldiven_ayarla" Grid.Column="2" />
-        <TextBox x:Name="tekrar_sayisi_textbox" Grid.Column="2" HorizontalAlignment="Left" Margin="540,224,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="70"/>
-        <Button Content="Emg Kalibrasyon"  HorizontalAlignment="Left" Height="37" Margin="385,16,0,0" VerticalAlignment="Top" Width="116" Click="emg_kaydet" x:Name="emg_kayit" Grid.Column="2"/>
-        <Label  Grid.Column="2" Content="Emg Verisi 2" Margin="652,348,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Width="82"/>
-        <Label FontSize="20" x:Name="emg_data_2_label" Grid.Column="2" Content="0" HorizontalAlignment="Left" Margin="672,375,0,0" VerticalAlignment="Top" Width="79"/>
-        <Label Grid.Column="2" Content="Hareket bekleniyor..." HorizontalAlignment="Left" Name="emg_hareket_label" Margin="634,308,0,0" VerticalAlignment="Top"/>
-        <Label Grid.Column="2" Content="Hareket bekleniyor..." HorizontalAlignment="Left" Name="emg2_hareket_label" Margin="634,412,0,0" VerticalAlignment="Top"/>
-        <TextBox x:Name="Emg_esik_textbox" Grid.Column="2" HorizontalAlignment="Left" Margin="641,199,0,0" TextWrapping="Wrap" Text="150" VerticalAlignment="Top" Width="107" TextChanged="Emg_esik_textbox_TextChanged"/>
-        <Button IsEnabled="false" x:Name="emg_kayit_buton" Content="emg kayit"  HorizontalAlignment="Left" Height="29" Margin="540,179,0,0" VerticalAlignment="Top" Width="70" Click="esik_ayar"  Grid.Column="2"/>
-        <Label  FontSize="20" x:Name="last_emg_data_label" Grid.Column="2" Content="0" HorizontalAlignment="Left" Margin="573,275,0,0" VerticalAlignment="Top" Width="76"/>
-        <Label FontSize="20" x:Name="last_emg_data2_label" Grid.Column="2" Content="0" HorizontalAlignment="Left" Margin="574,374,0,0" VerticalAlignment="Top" Width="67"/>
-        <Label x:Name="test_label_2" Content="Bağlanti modu:" HorizontalAlignment="Left" Height="54" Margin="22,120,0,0" VerticalAlignment="Top" Width="215" Grid.Column="1" Grid.ColumnSpan="2"/>
-        <CheckBox x:Name ="bluetooth_checkbox"  Grid.Column="2" Content="Bluetooth" HorizontalAlignment="Left" Margin="188,124,0,0" VerticalAlignment="Top" Width="118" IsChecked="True" Click="Bluetooth_checkbox_Click" />
-        <CheckBox x:Name ="wifi_checkbox"  Grid.Column="2" Content="Wifi" HorizontalAlignment="Left" Margin="314,124,0,0" VerticalAlignment="Top" Width="118" IsChecked="False" Click="wifi_checkbox_Click"  />
-        <Label  Grid.Column="2" Content="Hareket Hassasiyeti" Margin="635,172,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Width="116"/>
-        <Button  Content="Wi-Fi Konfigürasyon"  HorizontalAlignment="Left" Height="34" Margin="385,119,0,0" VerticalAlignment="Top" Width="116" Click="wifi_konfigurasyon_menu" x:Name="el_tekrar_buton_Copy1" Grid.Column="2"/>
-        <CheckBox x:Name ="emg_hareket_tespit_checkbox"  Grid.Column="2" Content="Emg hareket tespit" HorizontalAlignment="Left" Margin="385,74,0,0" VerticalAlignment="Top" Width="136" Click="emg_movement_Click" IsChecked="True" />
-        <Label x:Name ="emg_record_count_label"  Grid.Column="2" Content="" HorizontalAlignment="Left" Margin="540,148,0,0" VerticalAlignment="Top" Width="61"/>
-        <Label FontSize="20" x:Name="flex_sensor_5_raw" Grid.Column="2" Content="0" HorizontalAlignment="Left" Margin="306,594,0,0" VerticalAlignment="Top" Width="79"/>
-        <Label FontSize="20" x:Name="flex_sensor_4_raw" Grid.Column="2" Content="0" HorizontalAlignment="Left" Margin="199,594,0,0" VerticalAlignment="Top" Width="79"/>
-        <Label FontSize="20" x:Name="flex_sensor_3_raw" Grid.Column="2" Content="0" HorizontalAlignment="Left" Margin="109,594,0,0" VerticalAlignment="Top" Width="79"/>
-        <Label FontSize="20" x:Name="flex_sensor_2_raw" Grid.Column="2" Content="0" HorizontalAlignment="Left" Margin="10,594,0,0" VerticalAlignment="Top" Width="66"/>
-        <Label FontSize="20" x:Name="flex_sensor_1_raw" Grid.Column="1" Content="0" HorizontalAlignment="Center" Margin="0,594,0,0" VerticalAlignment="Top" Width="79"/>
-        <CheckBox  x:Name ="usb_checkbox"  Grid.Column="2" Content="USB" HorizontalAlignment="Left" Margin="102,125,0,0" VerticalAlignment="Top" Width="118" IsChecked="false" Click="usb_checkbox_Click"  />
-        <Button x:Name="makine_ogrenmesi_buton" IsEnabled="false" Content="Makine Öğrenmesi" HorizontalAlignment="Left" Height="37" Margin="262,16,0,0" VerticalAlignment="Top" Width="108" Click="makineye_ogret" Grid.Column="2"/>
-        <TextBox x:Name="Emg2_esik_textbox" Grid.Column="2" HorizontalAlignment="Left" Margin="641,224,0,0" TextWrapping="Wrap" Text="150" VerticalAlignment="Top" Width="107" TextChanged="Emg2_esik_textbox_"/>
+        <Label x:Name="test_label_4" Content="PWM Değeri:" HorizontalAlignment="Left" Height="38" Margin="14,279,0,0" VerticalAlignment="Top" Width="160" Grid.Column="2" Grid.ColumnSpan="2"/>
+        <Button Name="cihaz_baglan_buton" Cursor="Hand" Content="Cihaza Bağlan" Height="37" Margin="0,16,553,0" VerticalAlignment="Top" Click="Sunucuya_baglan" Grid.Column="3" HorizontalAlignment="Right" Width="108"/>
+        <Image Height="152" Margin="0,17,15,0" VerticalAlignment="Top" Source="/marel_logo_background.png" Grid.Column="3" HorizontalAlignment="Right" Width="255"/>
+        <Button IsEnabled="false" Content="Ayarla" Cursor="Hand" Height="33" Margin="0,442,50,0" VerticalAlignment="Top" Click="Pwm_Ayarla" Name="pwm_Ayari" Grid.Column="3" HorizontalAlignment="Right" Width="112"/>
+        <Label Content="Bağlı Değil!" Name="sunucu_durum" Foreground="Red" HorizontalAlignment="Left" Height="38" Margin="14,17,0,0" VerticalAlignment="Top" Width="248" Grid.Column="1" Grid.ColumnSpan="3"/>
+        <Slider Cursor="Hand" Grid.Column="1" Name="pwm_slider" IsSnapToTickEnabled="True" TickFrequency="10" Margin="22,247,449,0" VerticalAlignment="Top" ValueChanged="pwm_slider_ValueChanged" SmallChange="1" Maximum="255" Height="23" Grid.ColumnSpan="3"/>
+        <Label x:Name="pwm_deger" Content="%0" Height="28" Margin="0,279,638,0" VerticalAlignment="Top" Grid.Column="3" HorizontalAlignment="Right" Width="124"/>
+        <Label x:Name="test_label" Content="Bağlanılacak Cihazı Seçin:" HorizontalAlignment="Left" Height="38" Margin="13,65,0,0" VerticalAlignment="Top" Width="296" Grid.Column="1" Grid.ColumnSpan="3"/>
+        <CheckBox Name ="robotik"  Cursor="Hand" Grid.Column="3" Content="Robotik Sistem" Margin="0,75,495,0" VerticalAlignment="Top" IsChecked="True" Click="robotik_Click" HorizontalAlignment="Right" Width="118" />
+        <CheckBox Name ="eldiven"  Cursor="Hand" Grid.Column="3" Content="Eldiven" Margin="0,75,351,0" VerticalAlignment="Top" Click="eldiven_Click" IsChecked="True" HorizontalAlignment="Right" Width="136" />
+        <Slider Cursor="Hand" Name="parmak_1b_pwm" Grid.Column="1"  IsSnapToTickEnabled="True" TickFrequency="10" Margin="22,317,449,0" VerticalAlignment="Top" ValueChanged="pwm_slider_ValueChanged" SmallChange="1" Maximum="255" Height="23" Grid.ColumnSpan="3"/>
+        <Slider Cursor="Hand" Name="parmak_2is_pwm" Grid.Column="1"  IsSnapToTickEnabled="True" TickFrequency="10" Margin="22,366,449,0" VerticalAlignment="Top" ValueChanged="pwm_slider_ValueChanged" SmallChange="1" Maximum="255" Height="23" Grid.ColumnSpan="3"/>
+        <Slider Cursor="Hand" Name="parmak_3or_pwm" Grid.Column="1"  IsSnapToTickEnabled="True" TickFrequency="10" Margin="22,408,449,0" VerticalAlignment="Top" ValueChanged="pwm_slider_ValueChanged" SmallChange="1" Maximum="255" Height="23" Grid.ColumnSpan="3"/>
+        <Slider Cursor="Hand" Name="parmak_4yz_pwm" Grid.Column="1"  IsSnapToTickEnabled="True" TickFrequency="10" Margin="22,453,449,0" VerticalAlignment="Top" ValueChanged="pwm_slider_ValueChanged" SmallChange="1" Maximum="255" Height="23" Grid.ColumnSpan="3"/>
+        <Slider Cursor="Hand" Name="parmak_5sr_pwm"  Grid.Column="1"  IsSnapToTickEnabled="True" TickFrequency="10" Margin="22,499,449,0" VerticalAlignment="Top" ValueChanged="pwm_slider_ValueChanged" SmallChange="1" Maximum="255" Height="23" Grid.ColumnSpan="3"/>
+        <Label Content="Serçe parmak" Height="30" Margin="0,461,282,0" VerticalAlignment="Top" Grid.Column="3" HorizontalAlignment="Right" Width="108"/>
+        <Label Content="Baş parmak" Height="30" Margin="0,275,282,0" VerticalAlignment="Top" Grid.Column="3" HorizontalAlignment="Right" Width="108"/>
+        <Label Content="orta parmak" Height="30" Margin="0,372,282,0" VerticalAlignment="Top" Grid.Column="3" HorizontalAlignment="Right" Width="108"/>
+        <Label Content="yüzük parmağı" Height="30" Margin="0,414,282,0" VerticalAlignment="Top" Grid.Column="3" HorizontalAlignment="Right" Width="108"/>
+        <Label Content="işaret parmağı" Height="30" Margin="0,323,282,0" VerticalAlignment="Top" Grid.Column="3" HorizontalAlignment="Right" Width="108"/>
+        <Button IsEnabled="false" Content="Tümünü Ayarla" Cursor="Hand" HorizontalAlignment="Right" Height="34" Margin="0,169,300,0" VerticalAlignment="Top" Width="116" Click="Tum_pwm_ayarla" x:Name="Tum_pwm" Grid.Column="3"/>
+        <Label Name="bas_parmak_label" Grid.Column="3" Content="0" HorizontalAlignment="Right" Margin="0,275,245,0" VerticalAlignment="Top"/>
+        <Label x:Name="isaret_parmak_label" Grid.Column="3" Content="0" Margin="0,325,245,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="16"/>
+        <Label x:Name="orta_parmak_label" Grid.Column="3" Content="0" Margin="0,374,245,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="16"/>
+        <Label x:Name="serce_parmak_label" Grid.Column="3" Content="0" Margin="0,463,245,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="16"/>
+        <Label x:Name="yuzuk_parmak_label" Grid.Column="3" Content="0" Margin="0,416,245,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="16"/>
+        <Label  Grid.Column="2" Content="Flex Sensör 1" HorizontalAlignment="Center" Margin="0,526,0,0" VerticalAlignment="Top"/>
+        <Label  Grid.Column="3" Content="Flex Sensör 2" HorizontalAlignment="Left" Margin="4,526,0,0" VerticalAlignment="Top" Width="82"/>
+        <Label  Grid.Column="3" Content="Flex Sensör 3" HorizontalAlignment="Left" Margin="101,526,0,0" VerticalAlignment="Top"/>
+        <Label  Grid.Column="3" Content="Flex Sensör 4" HorizontalAlignment="Left" Margin="198,526,0,0" VerticalAlignment="Top"/>
+        <Label  Grid.Column="3" Content="Flex Sensör 5" HorizontalAlignment="Left" Margin="306,526,0,0" VerticalAlignment="Top"/>
+        <Label FontSize="20" x:Name="flex_sensor_1_label" Grid.Column="2" Content="0" HorizontalAlignment="Center" Margin="0,571,0,0" VerticalAlignment="Top" Width="79"/>
+        <Label FontSize="20" x:Name="flex_sensor_2_label" Grid.Column="3" Content="0" HorizontalAlignment="Left" Margin="10,572,0,0" VerticalAlignment="Top" Width="66"/>
+        <Label FontSize="20" x:Name="flex_sensor_3_label" Grid.Column="3" Content="0" HorizontalAlignment="Left" Margin="109,572,0,0" VerticalAlignment="Top" Width="79"/>
+        <Label FontSize="20" x:Name="flex_sensor_4_label" Grid.Column="3" Content="0" HorizontalAlignment="Left" Margin="199,571,0,0" VerticalAlignment="Top" Width="79"/>
+        <Label FontSize="20" x:Name="flex_sensor_5_label" Grid.Column="3" Content="0" HorizontalAlignment="Left" Margin="306,571,0,0" VerticalAlignment="Top" Width="79"/>
+        <Label  Grid.Column="3" Content="X eksen" HorizontalAlignment="Left" Margin="398,526,0,0" VerticalAlignment="Top"/>
+        <Label  Grid.Column="3" Content="Y eksen" HorizontalAlignment="Left" Margin="469,526,0,0" VerticalAlignment="Top"/>
+        <Label  Grid.Column="3" Content="Z eksen" HorizontalAlignment="Left" Margin="540,526,0,0" VerticalAlignment="Top"/>
+        <Label  Grid.Column="3" Content="Pil yüzdesi" HorizontalAlignment="Left" Margin="609,526,0,0" VerticalAlignment="Top"/>
+        <Label FontSize="20" x:Name="x_eksen_label"  Grid.Column="3" Content="0" HorizontalAlignment="Left" Margin="404,571,0,0" VerticalAlignment="Top" Width="49"/>
+        <Label FontSize="20" x:Name="y_eksen_label" Grid.Column="3" Content="0" HorizontalAlignment="Left" Margin="471,571,0,0" VerticalAlignment="Top" Width="49"/>
+        <Label FontSize="20" x:Name="z_eksen_label" Grid.Column="3" Content="0" HorizontalAlignment="Left" Margin="549,571,0,0" VerticalAlignment="Top" Width="49"/>
+        <Label FontSize="20" x:Name="pil_seviyesi_label" Grid.Column="3" Content="0" HorizontalAlignment="Left" Margin="617,571,0,0" VerticalAlignment="Top" Width="83"/>
+        <Label  Grid.Column="3" Content="Emg Verisi 1" Margin="0,253,47,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="118"/>
+        <Button IsEnabled="false" Content="Tekrarla" Cursor="Hand" HorizontalAlignment="Right" Height="34" Margin="0,223,300,0" VerticalAlignment="Top" Width="116" Click="el_acma_kapama" x:Name="el_tekrar_buton" Grid.Column="3" />
+        <Label   x:Name="emg_data_label" FontSize="20" Grid.Column="3" Content="0" Margin="0,274,50,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="79"/>
+        <Button IsEnabled="false" Content="Ayna Modu" Cursor="Hand" Height="33" Margin="0,488,49,0" VerticalAlignment="Top" Click="eldiven_ayarla_1" x:Name="eldiven_ayarla" Grid.Column="3" HorizontalAlignment="Right" Width="112" />
+        <TextBox x:Name="tekrar_sayisi_textbox" Grid.Column="3" Margin="0,224,191,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="70"/>
+        <Button Content="Emg Kalibrasyon" Cursor="Hand" IsEnabled="false" HorizontalAlignment="Right" Height="37" Margin="0,16,300,0" VerticalAlignment="Top" Width="116" Click="emg_kaydet" x:Name="emg_kayit" Grid.Column="3"/>
+        <Label x:Name="test_label6"  Grid.Column="3" Content="Emg Verisi 2" Margin="0,349,63,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="102"/>
+        <Label FontSize="20" x:Name="emg_data_2_label" Grid.Column="3" Content="0" Margin="0,375,50,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="79"/>
+        <Label Grid.Column="3" Content="Hareket bekleniyor..." Name="emg_hareket_label" Margin="0,308,49,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="118"/>
+        <Label Grid.Column="3" Content="Hareket bekleniyor..." Name="emg2_hareket_label" Margin="0,411,47,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="118"/>
+        <TextBox x:Name="Emg_esik_textbox" Grid.Column="3" Margin="0,199,53,0" TextWrapping="Wrap" Text="900" VerticalAlignment="Top" TextChanged="Emg_esik_textbox_TextChanged" HorizontalAlignment="Right" Width="112"/>
+        <Button IsEnabled="false" x:Name="emg_kayit_buton" Cursor="Hand" Content="emg kayit" Height="34" Margin="0,169,191,0" VerticalAlignment="Top" Click="esik_ayar"  Grid.Column="3" HorizontalAlignment="Right" Width="70"/>
+        <Label  FontSize="20" x:Name="last_emg_data_label" Grid.Column="3" Content="0" Margin="0,275,152,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="76"/>
+        <Label FontSize="20" x:Name="last_emg_data2_label" Grid.Column="3" Content="0" Margin="0,374,160,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="67"/>
+        <Label x:Name="test_label_2" Content="Bağlanti modu:" HorizontalAlignment="Left" Height="33" Margin="14,115,0,0" VerticalAlignment="Top" Width="214" Grid.Column="1" Grid.ColumnSpan="3"/>
+        <CheckBox x:Name ="bluetooth_checkbox" Cursor="Hand" Grid.Column="3" Content="Bluetooth" HorizontalAlignment="Right" Margin="0,120,495,0" VerticalAlignment="Top" Width="118" IsChecked="True" Click="Bluetooth_checkbox_Click" />
+        <CheckBox x:Name ="wifi_checkbox" Cursor="Hand" Grid.Column="3" Content="Wifi" Margin="0,120,369,0" VerticalAlignment="Top" IsChecked="False" Click="wifi_checkbox_Click" HorizontalAlignment="Right" Width="118"  />
+        <Label x:Name="test_label_5"  Grid.Column="3" Content="Hareket Hassasiyeti" Margin="0,172,15,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="151"/>
+        <Button  Content="Wi-Fi Konfigürasyon" Cursor="Hand" HorizontalAlignment="Right" Height="34" Margin="0,114,300,0" VerticalAlignment="Top" Width="116" Click="wifi_konfigurasyon_menu" x:Name="el_tekrar_buton_Copy1" Grid.Column="3"/>
+        <CheckBox x:Name ="emg_hareket_tespit_checkbox" Cursor="Hand" Grid.Column="3" Content="Emg hareket tespit" HorizontalAlignment="Right" Margin="0,74,280,0" VerticalAlignment="Top" Width="136" Click="emg_movement_Click" IsChecked="True" />
+        <Label x:Name ="emg_record_count_label"  Grid.Column="3" Content="" HorizontalAlignment="Left" Margin="540,148,0,0" VerticalAlignment="Top" Width="61"/>
+        <Label FontSize="20" x:Name="flex_sensor_5_raw" Grid.Column="3" Content="0" HorizontalAlignment="Left" Margin="306,594,0,0" VerticalAlignment="Top" Width="79"/>
+        <Label FontSize="20" x:Name="flex_sensor_4_raw" Grid.Column="3" Content="0" HorizontalAlignment="Left" Margin="199,594,0,0" VerticalAlignment="Top" Width="79"/>
+        <Label FontSize="20" x:Name="flex_sensor_3_raw" Grid.Column="3" Content="0" HorizontalAlignment="Left" Margin="109,594,0,0" VerticalAlignment="Top" Width="79"/>
+        <Label FontSize="20" x:Name="flex_sensor_2_raw" Grid.Column="3" Content="0" HorizontalAlignment="Left" Margin="10,594,0,0" VerticalAlignment="Top" Width="66"/>
+        <Label FontSize="20" x:Name="flex_sensor_1_raw" Grid.Column="2" Content="0" HorizontalAlignment="Center" Margin="0,594,0,0" VerticalAlignment="Top" Width="79"/>
+        <CheckBox  x:Name ="usb_checkbox" Cursor="Hand" Grid.Column="3" Content="USB" HorizontalAlignment="Right" Margin="0,120,580,0" VerticalAlignment="Top" Width="118" IsChecked="false" Click="usb_checkbox_Click"  />
+        <Button x:Name="makine_ogrenmesi_buton" Cursor="Hand" IsEnabled="false" Content="Makine Öğrenmesi" Height="37" Margin="0,16,431,0" VerticalAlignment="Top" Click="makineye_ogret" Grid.Column="3" HorizontalAlignment="Right" Width="108"/>
+        <TextBox x:Name="Emg2_esik_textbox" Grid.Column="3" Margin="0,224,53,0" TextWrapping="Wrap" Text="350" VerticalAlignment="Top" TextChanged="Emg2_esik_textbox_" HorizontalAlignment="Right" Width="112"/>
+        <Label x:Name="test_label_3" Content="Emg Modu:" HorizontalAlignment="Left" Height="33" Margin="13,157,0,0" VerticalAlignment="Top" Width="214" Grid.Column="1" Grid.ColumnSpan="3"/>
+        <CheckBox  x:Name ="tektikle_birak_checkbox" Cursor="Hand" IsChecked="True"  Grid.Column="3" Content="Tetikle Bırak" HorizontalAlignment="Right" Margin="0,165,606,0" VerticalAlignment="Top" Width="92"  Click="tektikle_birak_checkbox_Click"  />
+        <CheckBox  x:Name ="Surekli_checkbox" Cursor="Hand" Grid.Column="3" Content="Sürekli" Margin="0,165,395,0" VerticalAlignment="Top" IsChecked="false" Click="Surekli_checkbox_Click" HorizontalAlignment="Right" Width="92"  />
+        <Label x:Name="Eldiven_el" Content="Eldiven hangi elde:" HorizontalAlignment="Left" Height="33" Margin="13,204,0,0" VerticalAlignment="Top" Width="214" Grid.Column="1" Grid.ColumnSpan="3"/>
+        <CheckBox  x:Name ="eldiven_sol_checkbox" Cursor="Hand" IsChecked="False"  Grid.Column="3" Content="Sol" HorizontalAlignment="Right" Margin="0,208,606,0" VerticalAlignment="Top" Width="92"  Click="eldiven_sol_checkbox_Click"  />
+        <CheckBox  x:Name ="eldiven_sag_checkbox" Cursor="Hand" IsChecked="True"  Grid.Column="3" Content="Sağ" HorizontalAlignment="Right" Margin="0,209,395,0" VerticalAlignment="Top" Width="92"  Click="eldiven_sag_checkbox_Click"  />
 
 
     </Grid>

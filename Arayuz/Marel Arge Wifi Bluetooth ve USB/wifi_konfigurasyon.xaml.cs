@@ -82,7 +82,7 @@ namespace marel_arge
                 seriport_gelen_label.ScrollToEnd();
                 count_label++;
 
-                if (count_label > 100)
+                if (count_label > 25)
                 {
                     seriport_gelen_label.Clear();
                     count_label = 0;
