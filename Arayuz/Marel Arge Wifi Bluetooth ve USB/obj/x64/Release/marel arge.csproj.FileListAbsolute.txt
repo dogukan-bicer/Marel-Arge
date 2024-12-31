@@ -38,6 +38,6 @@ C:\Users\doguk\source\repos\marel arge_\obj\x64\Release\Marel Arge.g.resources
 C:\Users\doguk\source\repos\marel arge_\obj\x64\Release\marel_arge.Properties.Resources.resources
 C:\Users\doguk\source\repos\marel arge_\obj\x64\Release\marel arge.csproj.GenerateResource.cache
 C:\Users\doguk\source\repos\marel arge_\obj\x64\Release\marel arge.csproj.CoreCompileInputs.cache
-C:\Users\doguk\source\repos\marel arge_\obj\x64\Release\marel arge.csproj.CopyComplete
 C:\Users\doguk\source\repos\marel arge_\obj\x64\Release\Marel Arge.exe
 C:\Users\doguk\source\repos\marel arge_\obj\x64\Release\Marel Arge.pdb
+C:\Users\doguk\source\repos\marel arge_\obj\x64\Release\marel arge.csproj.Up2Date
